@@ -22,7 +22,6 @@ from users.validator import (
     UserPreferenceInputValidator,
     UserRegistrationInputValidator,
 )
-from utils.emails import send_registration_otp_mail
 
 
 class UserObtainAuthTokenAPI(APIView):
@@ -152,7 +151,7 @@ class UserSendVerificationOTPAPI(APIView):
         """
 
         otp = create_verification_otp(request.user.email)
-        send_registration_otp_mail(request.user.email, otp)
+        # send_registration_otp_mail(request.user.email, otp)
 
         return Response(
             {
