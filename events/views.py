@@ -3,6 +3,7 @@ from datetime import timezone
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
 
 from events.serializers import EventSerializer
 from events.validator import EventCreateInputValidator
@@ -105,6 +106,12 @@ class EventsPublicFeedAPI(APIView):
     permission_classes = []
     authentication_classes = []
 
+    class CustomPaginator(PageNumberPagination):
+        """Custom paginator for this view only"""
+        page_size = 25  # Set page size to 25
+        # page_size_query_param = 'page_size'  # Optional: Allow users to override page size
+        # max_page_size = 100  # Prevent excessive page sizes
+
     def get(self, request):
         """GET Method to fetch events feed
 
@@ -134,13 +141,18 @@ class EventsPublicFeedAPI(APIView):
 
         events = events.order_by("start_datetime")  # Order by date
 
-        return Response(
+        # Apply pagination (Only for this view)
+        paginator = self.CustomPaginator()
+        paginated_events = paginator.paginate_queryset(events, request)
+
+        return paginator.get_paginated_response(
             {
                 "events": [
                     {
-                        "details": EventSerializer(event).details_serializer(),
+                        "details": EventSerializer(event).details_serializer
                     }
-                    for event in events
+                    for event in paginated_events
+                    
                 ]
             },
             status=status.HTTP_200_OK,
@@ -148,7 +160,7 @@ class EventsPublicFeedAPI(APIView):
 
 
 class EventsFeedAPI(APIView):
-    # ! need to add search, filter and pagination
+    # ! need to add search (done), filter and pagination
     """API view to fetch events feed
 
     Methods:
@@ -169,12 +181,34 @@ class EventsFeedAPI(APIView):
             - Successes
                 - events feed
         """
+        class CustomPaginator(PageNumberPagination):
+            """Custom paginator for this view only"""
+            page_size = 25  # Set page size to 25
+            # page_size_query_param = 'page_size'  # Optional: Allow users to override page size
+            # max_page_size = 100  # Prevent excessive page sizes
 
+        search_query = request.GET.get("search_query", "").strip()
+        
+        # Fetch all upcoming published events
         events = models.Event.objects.filter(
-            status="active", start_time__gte=timezone.now()
+            status="published", start_datetime__gte=timezone.now()
         ).order_by("start_time")
 
-        return Response(
+        # Apply search filtering if user has entered a keyword
+        if search_query:
+            events = events.filter(
+                Q(name__icontains=search_query) |  # Search in event name
+                Q(description__icontains=search_query) |  # Search in event description
+                Q(location__icontains=search_query)  # Search in event location
+            )
+
+        events = events.order_by("start_datetime")  # Order by date
+        
+        # Apply pagination (Only for this view)
+        paginator = self.CustomPaginator()
+        paginated_events = paginator.paginate_queryset(events, request)
+
+        return paginator.get_paginated_response(
             {
                 "events": [
                     {
@@ -189,7 +223,7 @@ class EventsFeedAPI(APIView):
                             event=event, user=request.user, is_present=True
                         ).exists(),
                     }
-                    for event in events
+                    for event in paginated_events
                 ]
             },
             status=status.HTTP_200_OK,
