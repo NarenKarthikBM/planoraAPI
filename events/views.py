@@ -1,9 +1,9 @@
-from datetime import timezone
-
+from django.db.models import Q
+from django.utils import timezone
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.pagination import PageNumberPagination
 
 from events.serializers import EventSerializer
 from events.validator import EventCreateInputValidator
@@ -11,10 +11,6 @@ from users.models import OrganisationCommittee
 from users.serializers import UserSerializer
 
 from . import models
-
-from .models import Event
-from django.shortcuts import render
-from django.db.models import Q
 
 # def search_events(request):
 #     results = []
@@ -108,6 +104,7 @@ class EventsPublicFeedAPI(APIView):
 
     class CustomPaginator(PageNumberPagination):
         """Custom paginator for this view only"""
+
         page_size = 25  # Set page size to 25
         # page_size_query_param = 'page_size'  # Optional: Allow users to override page size
         # max_page_size = 100  # Prevent excessive page sizes
@@ -125,7 +122,7 @@ class EventsPublicFeedAPI(APIView):
                 - events feed
         """
         search_query = request.GET.get("search", "").strip()
-        
+
         # Fetch all upcoming published events
         events = models.Event.objects.filter(
             status="published", start_datetime__gte=timezone.now()
@@ -134,18 +131,19 @@ class EventsPublicFeedAPI(APIView):
         # Apply search filtering if user has entered a keyword
         if search_query:
             events = events.filter(
-                Q(name__icontains=search_query) |  # Search in event name
-                Q(description__icontains=search_query) |  # Search in event description
-                Q(location__icontains=search_query)  # Search in event location
+                Q(name__icontains=search_query)  # Search in event name
+                | Q(description__icontains=search_query)  # Search in event description
+                | Q(location__icontains=search_query)  # Search in event location
             )
-
 
         # Retrieve query parameters
         category = request.GET.get("category")
         event_type = request.GET.get("type")
         tags = request.GET.getlist("tags")  # Handles multiple tags
         # Get sorting parameters from the request
-        sort_by = request.GET.get("sort_by", "start_datetime")  # Default to start_datetime
+        sort_by = request.GET.get(
+            "sort_by", "start_datetime"
+        )  # Default to start_datetime
         order = request.GET.get("order", "asc")  # Default to ascending order
 
         # Define allowed sorting fields
@@ -173,7 +171,6 @@ class EventsPublicFeedAPI(APIView):
         if tags:  # Assuming tags is a JSONField containing a list
             events = events.filter(tags__contains=tags)
 
-
         # events = events.order_by("start_datetime")  # Order by date
 
         # Apply pagination (Only for this view)
@@ -183,11 +180,8 @@ class EventsPublicFeedAPI(APIView):
         return paginator.get_paginated_response(
             {
                 "events": [
-                    {
-                        "details": EventSerializer(event).details_serializer
-                    }
+                    {"details": EventSerializer(event).details_serializer}
                     for event in paginated_events
-                    
                 ]
             },
             status=status.HTTP_200_OK,
@@ -205,10 +199,11 @@ class EventsFeedAPI(APIView):
     permission_classes = []
 
     class CustomPaginator(PageNumberPagination):
-            """Custom paginator for this view only"""
-            page_size = 25  # Set page size to 25
-            # page_size_query_param = 'page_size'  # Optional: Allow users to override page size
-            # max_page_size = 100  # Prevent excessive page sizes
+        """Custom paginator for this view only"""
+
+        page_size = 25  # Set page size to 25
+        # page_size_query_param = 'page_size'  # Optional: Allow users to override page size
+        # max_page_size = 100  # Prevent excessive page sizes
 
     def get(self, request):
         """GET Method to fetch events feed
@@ -232,9 +227,9 @@ class EventsFeedAPI(APIView):
         # Apply search filtering if user has entered a keyword
         if search_query:
             events = events.filter(
-                Q(name__icontains=search_query) |  # Search in event name
-                Q(description__icontains=search_query) |  # Search in event description
-                Q(location__icontains=search_query)  # Search in event location
+                Q(name__icontains=search_query)  # Search in event name
+                | Q(description__icontains=search_query)  # Search in event description
+                | Q(location__icontains=search_query)  # Search in event location
             )
 
         # Retrieve query parameters
@@ -242,7 +237,9 @@ class EventsFeedAPI(APIView):
         event_type = request.GET.get("type")
         tags = request.GET.getlist("tags")  # Handles multiple tags
         # Get sorting parameters from the request
-        sort_by = request.GET.get("sort_by", "start_datetime")  # Default to start_datetime
+        sort_by = request.GET.get(
+            "sort_by", "start_datetime"
+        )  # Default to start_datetime
         order = request.GET.get("order", "asc")  # Default to ascending order
 
         # Define allowed sorting fields
@@ -269,7 +266,6 @@ class EventsFeedAPI(APIView):
             events = events.filter(type=event_type)
         if tags:  # Assuming tags is a JSONField containing a list
             events = events.filter(tags__contains=tags)
-
 
         # events = events.order_by("start_datetime")  # Order by date
 
