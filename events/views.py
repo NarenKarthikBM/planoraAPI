@@ -177,14 +177,17 @@ class EventsPublicFeedAPI(APIView):
         paginated_events = paginator.paginate_queryset(events, request)
 
         return Response(
-            paginator.get_paginated_response(
-                {
-                    "events": [
-                        {"details": EventSerializer(event).details_serializer()}
-                        for event in paginated_events
-                    ]
-                }
-            ),
+            {
+                "events": [
+                    {"details": EventSerializer(event).details_serializer()}
+                    for event in paginated_events
+                ],
+                "total_events": events.count(),
+                "page": paginator.page.number,
+                "total_pages": paginator.page.paginator.num_pages,
+                "next_page_link": paginator.get_next_link(),
+                "previous_page_link": paginator.get_previous_link(),
+            },
             status=status.HTTP_200_OK,
         )
 
