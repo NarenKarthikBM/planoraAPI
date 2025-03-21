@@ -334,7 +334,10 @@ class UserOrganisationListAPI(APIView):
         return Response(
             {
                 "organisations": [
-                    OrganisationSerializer(org).details_serializer()
+                    {
+                        "details": OrganisationSerializer(org).details_serializer(),
+                        "designation": org.committee.get(user=user).designation,
+                    }
                     for org in organisations
                 ]
             },
