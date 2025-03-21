@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
 
 from events.serializers import EventSerializer
 from events.validator import EventCreateInputValidator
@@ -126,7 +127,10 @@ class EventsPublicFeedAPI(APIView):
 
     class CustomPaginator(PageNumberPagination):
         """Custom paginator for this view only"""
+<<<<<<< HEAD
 
+=======
+>>>>>>> fbb877db62882eb90c7b2458d1f953936c8332cf
         page_size = 25  # Set page size to 25
         # page_size_query_param = 'page_size'  # Optional: Allow users to override page size
         # max_page_size = 100  # Prevent excessive page sizes
@@ -144,7 +148,11 @@ class EventsPublicFeedAPI(APIView):
                 - events feed
         """
         search_query = request.GET.get("search", "").strip()
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> fbb877db62882eb90c7b2458d1f953936c8332cf
         # Fetch all upcoming published events
         events = models.Event.objects.filter(
             status="published", start_datetime__gte=timezone.now()
@@ -195,6 +203,7 @@ class EventsPublicFeedAPI(APIView):
 
         # events = events.order_by("start_datetime")  # Order by date
 
+<<<<<<< HEAD
         # Apply pagination (Only for this view)
         paginator = self.CustomPaginator()
         paginated_events = paginator.paginate_queryset(events, request)
@@ -204,6 +213,22 @@ class EventsPublicFeedAPI(APIView):
                 "events": [
                     {"details": EventSerializer(event).details_serializer}
                     for event in paginated_events
+=======
+        # events = events.order_by("start_datetime")  # Order by date
+
+        # Apply pagination (Only for this view)
+        paginator = self.CustomPaginator()
+        paginated_events = paginator.paginate_queryset(events, request)
+
+        return paginator.get_paginated_response(
+            {
+                "events": [
+                    {
+                        "details": EventSerializer(event).details_serializer
+                    }
+                    for event in paginated_events
+                    
+>>>>>>> fbb877db62882eb90c7b2458d1f953936c8332cf
                 ]
             },
             status=status.HTTP_200_OK,
@@ -221,11 +246,18 @@ class EventsFeedAPI(APIView):
     permission_classes = []
 
     class CustomPaginator(PageNumberPagination):
+<<<<<<< HEAD
         """Custom paginator for this view only"""
 
         page_size = 25  # Set page size to 25
         # page_size_query_param = 'page_size'  # Optional: Allow users to override page size
         # max_page_size = 100  # Prevent excessive page sizes
+=======
+            """Custom paginator for this view only"""
+            page_size = 25  # Set page size to 25
+            # page_size_query_param = 'page_size'  # Optional: Allow users to override page size
+            # max_page_size = 100  # Prevent excessive page sizes
+>>>>>>> fbb877db62882eb90c7b2458d1f953936c8332cf
 
     def get(self, request):
         """GET Method to fetch events feed
@@ -241,8 +273,11 @@ class EventsFeedAPI(APIView):
         """
         search_query = request.GET.get("search", "").strip()
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> fbb877db62882eb90c7b2458d1f953936c8332cf
         # Fetch all upcoming published events
         events = models.Event.objects.filter(
             status="published", start_datetime__gte=timezone.now()
@@ -251,9 +286,15 @@ class EventsFeedAPI(APIView):
         # Apply search filtering if user has entered a keyword
         if search_query:
             events = events.filter(
+<<<<<<< HEAD
                 Q(name__icontains=search_query)  # Search in event name
                 | Q(description__icontains=search_query)  # Search in event description
                 | Q(location__icontains=search_query)  # Search in event location
+=======
+                Q(name__icontains=search_query) |  # Search in event name
+                Q(description__icontains=search_query) |  # Search in event description
+                Q(location__icontains=search_query)  # Search in event location
+>>>>>>> fbb877db62882eb90c7b2458d1f953936c8332cf
             )
 
         # Retrieve query parameters
@@ -291,6 +332,10 @@ class EventsFeedAPI(APIView):
         if tags:  # Assuming tags is a JSONField containing a list
             events = events.filter(tags__contains=tags)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> fbb877db62882eb90c7b2458d1f953936c8332cf
         # events = events.order_by("start_datetime")  # Order by date
 
         # Apply pagination (Only for this view)

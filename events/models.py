@@ -2,7 +2,16 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 type_choices = [("online", "Online"), ("offline", "Offline"), ("hybrid", "Hybrid")]
-categories = [('music','Music'),('nightlife','Nightlife'),('concert','Concert'),('holidays','Holidays'),('dating','Dating'),('hobbies','Hobbies'),('business','Business'),('food_drink','Food & Drink')]
+categories = [
+    ("music", "Music"),
+    ("nightlife", "Nightlife"),
+    ("concert", "Concert"),
+    ("holidays", "Holidays"),
+    ("dating", "Dating"),
+    ("hobbies", "Hobbies"),
+    ("business", "Business"),
+    ("food_drink", "Food & Drink"),
+]
 
 
 class Event(models.Model):
@@ -13,7 +22,7 @@ class Event(models.Model):
     """
 
     organisation = models.ForeignKey(
-        "organisations.Organisation",
+        "users.Organisation",
         verbose_name=_("organisation"),
         help_text="Organisation",
         on_delete=models.CASCADE,
@@ -26,9 +35,13 @@ class Event(models.Model):
         _("start datetime"), help_text="Start Datetime"
     )
     end_datetime = models.DateTimeField(_("end datetime"), help_text="End Datetime")
-    category = models.CharField(_("category"),help_text="Category",max_length=50,choices=categories)
+    category = models.CharField(
+        _("category"), help_text="Category", max_length=50, choices=categories
+    )
     tags = models.JSONField(_("tags"), help_text="Tags")
-    type = models.CharField(_("type"), help_text="Type", max_length=255, choices=type_choices)
+    type = models.CharField(
+        _("type"), help_text="Type", max_length=255, choices=type_choices
+    )
     location = models.CharField(_("location"), help_text="Location", max_length=255)
     latitude = models.DecimalField(max_digits=9, decimal_places=5)
     longitude = models.DecimalField(max_digits=9, decimal_places=5)
@@ -41,8 +54,6 @@ class Event(models.Model):
     attendees = models.ManyToManyField(
         "users.CustomUser",
         through="events.EventAttendees",
-        related_name="events_attended",
-        related_query_name="event_attended",
     )
 
     created_by = models.ForeignKey(
@@ -50,7 +61,7 @@ class Event(models.Model):
         verbose_name=_("created by"),
         help_text="Created By",
         on_delete=models.CASCADE,
-        related_name="events",
+        related_name="events_created",
     )
     created_at = models.DateTimeField(
         _("created at"), help_text="Created At", auto_now_add=True
@@ -112,14 +123,14 @@ class EventAttendees(models.Model):
         on_delete=models.CASCADE,
         verbose_name="event",
         help_text="Event",
-        related_name="attendees",
+        related_name="event_attendees",
     )
     attendee = models.ForeignKey(
         "users.CustomUser",
         on_delete=models.CASCADE,
         verbose_name="attendee",
         help_text="Attendee",
-        related_name="events",
+        related_name="events_attended",
     )
     is_present = models.BooleanField(
         _("is present"), help_text="Is Present", default=False

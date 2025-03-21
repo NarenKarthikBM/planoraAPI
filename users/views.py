@@ -118,7 +118,7 @@ class UserRegistrationAPI(APIView):
         user.set_password(validated_data["password"])
         user.save()
 
-        user_authorization = authorize_user(validated_data.validated_data)
+        user_authorization = authorize_user(validated_data)
 
         return Response(user_authorization, status=status.HTTP_201_CREATED)
 
@@ -149,7 +149,7 @@ class UserSendVerificationOTPAPI(APIView):
 
         """
 
-        otp = create_verification_otp()
+        otp = create_verification_otp(request.user.email)
         send_registration_otp_mail(request.user.email, otp)
 
         return Response(
