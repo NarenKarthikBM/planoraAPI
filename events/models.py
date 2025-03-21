@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 type_choices = [("online", "Online"), ("offline", "Offline"), ("hybrid", "Hybrid")]
+tags = [('music','Music'),('nightlife','Nightlife'),('concert','Concert'),('holidays','Holidays'),('dating','Dating'),('hobbies','Hobbies'),('business','Business'),('food_drink','Food & Drink')]
 
 
 class Event(models.Model):
