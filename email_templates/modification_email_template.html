@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Important Update: Event Rescheduled</title>
+    <style>
+        ul {
+            list-style-type: none; /* Removes bullet points */
+            padding: 0; /* Removes default padding */
+        }
+
+        li::before {
+            content: "🔹"; /* Adds a blue diamond as a custom bullet */
+            color: #4A68B2; /* Matches your color scheme */
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle, #DDE0F2 0%, #FFFFFF 100%);
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            background: radial-gradient(circle, #DDE0F2 0%, #FFFFFF 100%);
+            margin: 20px auto;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+        .header {
+            color: #000000;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 12px 12px 0 0;
+            letter-spacing: 1px;
+        }
+        .content {
+            padding: 25px;
+            color: #333333;
+            text-align: center;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #4A68B2;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #4A68B2;
+            color: #ffffff;
+            padding: 14px 28px;
+            font-size: 18px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 6px;
+            margin-top: 25px;
+            transition: 0.3s;
+        }
+        .cta-button:hover {
+            background-color: #344B8C;
+        }
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #777777;
+            padding: 20px;
+        }
+        .footer a {
+            color: #4A68B2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">📢 Important Event Update</div>
+        
+        <div class="content">
+            <p class="details">Dear <span class="highlight">[Attendee Name]</span>,</p>
+            <p>We would like to inform you that <span class="highlight">[Event Name]</span> has been <span class="highlight">rescheduled</span>.</p>
+
+            <p>Here are the updated details:</p>
+            <!--<ul style="text-align: left; display: inline-block;">-->
+            <!--    <li>📅 <strong>New Date:</strong> <span class="highlight">[new_event_date]</span></li>-->
+            <!--    <li>🗓️ <strong>New Day:</strong> <span class="highlight">[new_event_day]</span></li>-->
+            <!--    <li>⏰ <strong>New Time:</strong> <span class="highlight">[new_event_time]</span></li>-->
+            <!--</ul>-->
+            📍 <strong>Venue:</strong> <span class="highlight">[Location]</span> <br>
+            🗓️ <strong>Date:</strong> <span class="highlight">[Event Date]</span> <br>
+            ⏰ <strong>Time:</strong> <span class="highlight">[Start Time] – [End Time]</span> <br>
+            <p>We apologize for any inconvenience this might have caused and appreciate your understanding.</p>
+            <p>Click below to view the updated event details:</p>
+            
+            <a href="{{ event_link }}" class="cta-button">🔗 View Updated Event</a>
+
+            <p>We hope to see you there! 🎊 </p>
+        </div>
+
+        <div class="footer">
+            <p>For any questions, reach out to us at <a href="mailto:support@planoraapi.com">support@planoraapi.com</a></p>
+        </div>
+    </div>
+</body>
+</html>

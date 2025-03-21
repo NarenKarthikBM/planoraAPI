@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to Planora API!</title>
+    <style>
+        ul {
+            list-style-type: none; /* Removes bullet points */
+            padding: 0; /* Removes default padding */
+        }
+
+        li::before {
+            content: "🔹"; /* Adds a blue diamond as a custom bullet */
+            color: #4A68B2; /* Matches your color scheme */
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle, #DDE0F2 0%, #FFFFFF 100%);
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            background: radial-gradient(circle, #DDE0F2 0%, #FFFFFF 100%);
+            margin: 20px auto;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+        .header {
+            /*background-color: #B5BBE2;*/
+            color: #000000;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 12px 12px 0 0;
+            letter-spacing: 1px;
+        }
+        .content {
+            padding: 25px;
+            color: #333333;
+            text-align: center;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #4A68B2;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #4A68B2;
+            color: #ffffff;
+            padding: 14px 28px;
+            font-size: 18px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 6px;
+            margin-top: 25px;
+            transition: 0.3s;
+        }
+        .cta-button:hover {
+            background-color: #344B8C;
+        }
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #777777;
+            padding: 20px;
+        }
+        .footer a {
+            color: #4A68B2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">🎉 Welcome to Planora!</div>
+        
+        <div class="content">
+            <p>Dear <strong>[User Name]</strong>,</p>
+            <p>We're thrilled to have you join the <strong>Planora</strong> family! 🚀 Your account has been successfully created, and you're now part of an exclusive network of innovators.</p>
+
+            <p>Here’s what you can do next:</p>
+            <ul style="text-align: left; display: inline-block;">
+                <li>Explore our <strong>API documentation</strong> for seamless integration.</li>
+                <li>Manage your profile and settings.</li>
+                <li>Get instant support from our dedicated team.</li>
+            </ul>
+
+            <a href="[User Dashboard Link]" class="cta-button">🚀 Go to My Dashboard</a>
+
+            <!--<p>Need help getting started? Check out our <a href="[Help Center Link]"><strong>Help Center</strong></a> or contact our support team.</p>-->
+
+            <p>Your Event Adventure Begins Here – Create & Explore Now! 🎊 </p>
+        </div>
+
+        <div class="footer">
+            <p>Need assistance? Contact us at <a href="mailto:support@planoraapi.com">support@planoraapi.com</a></p>
+            <!--<p>Follow us for updates: <a href="#">LinkedIn</a> | <a href="#">Twitter</a> | <a href="#">Facebook</a></p>-->
+        </div>
+    </div>
+</body>
+</html>
