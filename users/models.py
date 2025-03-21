@@ -48,6 +48,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(
         _("email address"), help_text="Email Address", unique=True, db_index=True
     )
+    email_verified = models.BooleanField(
+        _("email verified"), help_text="Email Verified", default=False
+    )
     mobile_no = models.CharField(
         _("mobile no"),
         help_text="Mobile No",
@@ -57,11 +60,28 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         db_index=True,
     )
     name = models.CharField(_("name"), help_text="Name", max_length=50, db_index=True)
-    role = models.CharField(
-        _("role"),
-        help_text="User Role",
-        max_length=10,
-        choices=USER_ROLE_CHOICES,
+    location = models.CharField(
+        _("location"),
+        help_text="Location",
+        max_length=50,
+        blank=True,
+        null=True,
+    )
+    latitude = models.DecimalField(
+        _("latitude"),
+        help_text="Latitude",
+        max_digits=9,
+        decimal_places=5,
+        blank=True,
+        null=True,
+    )
+    longitude = models.DecimalField(
+        _("longitude"),
+        help_text="Longitude",
+        max_digits=9,
+        decimal_places=5,
+        blank=True,
+        null=True,
     )
     is_staff = models.BooleanField(_("is staff"), help_text="Is Staff", default=False)
     is_superuser = models.BooleanField(
@@ -133,42 +153,140 @@ class UserAuthTokens(models.Model):
         verbose_name_plural = "user auth tokens"
 
 
-class UserPermissions(models.Model):
-    """This model stores additional information about user permissions
+class UserVerificationOTP(models.Model):
+    """This model stores user's verification OTP
     Returns:
-        class: details of user permissions
+        class: details of user's verification OTP
     """
 
-    user = models.OneToOneField(
+    email = models.EmailField(
+        _("email"),
+        help_text="Email",
+        db_index=True,
+    )
+    otp = models.CharField(
+        _("otp"),
+        help_text="OTP",
+        max_length=6,
+    )
+    created_at = models.DateTimeField(
+        _("created at"), help_text="Created At", auto_now_add=True
+    )
+
+    def __str__(self):
+        return self.email
+
+    class Meta:
+        """Stores Meta data of the model class"""
+
+        verbose_name = "user verification otp"
+        verbose_name_plural = "user verification otps"
+
+
+class Organisation(models.Model):
+    """This model stores the details of organisations
+    Returns:
+        class: details of organisations
+    """
+
+    name = models.CharField(
+        _("name"), help_text="Name", max_length=100, db_index=True, unique=True
+    )
+    logo = models.ImageField(
+        _("logo"), help_text="Logo", upload_to="organisations/", blank=True, null=True
+    )
+    description = models.TextField(
+        _("description"), help_text="Description", blank=True
+    )
+    email = models.EmailField(
+        _("contact email"),
+        help_text="Contact Email",
+        db_index=True,
+    )
+    tags = models.JSONField(
+        _("tags"),
+        help_text="Tags",
+        default=list,
+    )
+    committee = models.ManyToManyField(
+        "users.CustomUser",
+        verbose_name=_("committee"),
+        help_text="Committee Members",
+        through="users.OrganisationCommittee",
+        through_fields=("organisation", "user"),
+        related_name="organisations",
+        related_query_name="organisation",
+        blank=True,
+    )
+    location = models.CharField(
+        _("location"),
+        help_text="Location",
+        max_length=100,
+        blank=True,
+        null=True,
+    )
+    created_at = models.DateTimeField(
+        _("created at"), help_text="Created At", auto_now_add=True
+    )
+    updated_at = models.DateTimeField(
+        _("updated at"), help_text="Updated At", auto_now=True
+    )
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        """Stores Meta data of the model class"""
+
+        verbose_name = "organisation"
+        verbose_name_plural = "organisations"
+
+
+class OrganisationCommittee(models.Model):
+    """This model stores the details of organisation committee
+    Returns:
+        class: details of organisation committee
+    """
+
+    user = models.ForeignKey(
         "users.CustomUser",
         on_delete=models.CASCADE,
         verbose_name="user",
         help_text="User",
-        related_name="permissions",
-        related_query_name="permissions",
+        related_name="organisation_committee",
+        related_query_name="organisation_committee",
+    )
+    organisation = models.ForeignKey(
+        "users.Organisation",
+        on_delete=models.CASCADE,
+        verbose_name="organisation",
+        help_text="Organisation",
+        related_name="committee_members",
+        related_query_name="committee_member",
+    )
+    designation = models.CharField(
+        _("designation"),
+        help_text="Designation",
+        max_length=50,
+        default="Member",
     )
     permissions = models.JSONField(
         _("permissions"),
         help_text="Permissions granted to the user",
         default=dict,
     )
+    created_at = models.DateTimeField(
+        _("created at"), help_text="Created At", auto_now_add=True
+    )
     updated_at = models.DateTimeField(
         _("updated at"), help_text="Updated At", auto_now=True
     )
-    updated_by = models.ForeignKey(
-        "users.CustomUser",
-        on_delete=models.SET_NULL,
-        verbose_name="updated by",
-        help_text="Updated By",
-        null=True,
-        blank=True,
-        related_name="updated_permissions",
-        related_query_name="updated_permissions",
-    )
 
     def __str__(self):
-        return f"{self.user.email} - Permissions"
+        return f"{self.user.email} - {self.organisation.name}"
 
     class Meta:
-        verbose_name = "user permissions"
-        verbose_name_plural = "user permissions"
+        """Stores Meta data of the model class"""
+
+        verbose_name = "organisation committee"
+        verbose_name_plural = "organisation committees"

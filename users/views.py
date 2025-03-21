@@ -3,8 +3,20 @@ from rest_framework.response import Response
 from rest_framework.validators import ValidationError
 from rest_framework.views import APIView
 
-from users.utils import authorize_user
-from users.validator import UserObtainAuthTokenInputValidator
+from users.models import (
+    CustomUser,
+    Organisation,
+    OrganisationCommittee,
+    UserVerificationOTP,
+)
+from users.serializers import OrganisationSerializer, UserSerializer
+from users.utils import authorize_user, create_verification_otp
+from users.validator import (
+    OrganisationCreateInputValidator,
+    UserObtainAuthTokenInputValidator,
+    UserRegistrationInputValidator,
+)
+from utils.emails import send_registration_otp_mail
 
 
 class UserObtainAuthTokenAPI(APIView):
@@ -51,52 +63,375 @@ class UserObtainAuthTokenAPI(APIView):
         return Response(user_authorization, status=status.HTTP_200_OK)
 
 
-# class UserRegistrationAPI(APIView):
-#     """API view to register a user
+class UserRegistrationAPI(APIView):
+    """API view to register a user
 
-#     Methods:
-#         POST
-#     """
+    Methods:
+        POST
+    """
 
-#     permission_classes = []
-#     authentication_classes = []
+    permission_classes = []
+    authentication_classes = []
 
-#     def post(self, request):
-#         """POST Method to register a user
+    def post(self, request):
+        """POST Method to register a user
 
-#         Input Serializer:
-#             - email
-#             - password
-#             - first_name
-#             - last_name
-#             - otp
+        Input Serializer:
+            - email
+            - password
+            - first_name
+            - last_name
 
-#         Output Serializer:
-#             - tokens
-#             - User Serializer (details_serializer)
+        Output Serializer:
+            - tokens
+            - User Serializer (details_serializer)
 
-#         Possible Outputs:
-#             - Errors
-#             - email already exists (email field)
-#             - invalid OTP (otp field)
-#             - Successes
-#             - tokens and user details
+        Possible Outputs:
+            - Errors
+            - email already exists (email field)
+            - Successes
+            - tokens and user details
 
-#         """
+        """
 
-#         otp = request.data.get("otp")
-#         email = request.data.get("email")
+        if CustomUser.objects.filter(email=request.data.get("email")).exists():
+            raise ValidationError({"error": "Email already exists", "field": "email"})
 
-#         if not validate_otp(email, otp):
-#             raise ValidationError({"error": "invalid OTP", "field": "otp"})
+        validated_data = UserRegistrationInputValidator(request.data).serialized_data()
 
-#         validated_data = UserSerializer(data=request.data)
-#         if not validated_data.is_valid():
-#             raise ValidationError(validated_data.errors)
+        user = CustomUser(
+            email=validated_data["email"],
+            name=validated_data["name"],
+            mobile_no=validated_data["mobile_no"],
+            location=validated_data["location"],
+            latitude=validated_data["latitude"],
+            longitude=validated_data["longitude"],
+            is_active=True,
+            is_staff=False,
+            is_superuser=False,
+        )
+        user.save()
+        user.set_password(validated_data["password"])
+        user.save()
 
-#         user = CustomUser.objects.create_user(**validated_data.validated_data)
-#         user.save()
+        user_authorization = authorize_user(validated_data.validated_data)
 
-#         user_authorization = authorize_user(validated_data.validated_data)
+        return Response(user_authorization, status=status.HTTP_201_CREATED)
 
-#         return Response(user_authorization, status=status.HTTP_201_CREATED)
+
+class UserSendVerificationOTPAPI(APIView):
+    """API view to send OTP for user verification
+
+    Methods:
+        POST
+    """
+
+    permission_classes = []
+
+    def post(self, request):
+        """POST Method to send OTP for user verification
+
+        Input Serializer:
+            - email
+
+        Output Serializer:
+            - success message
+
+        Possible Outputs:
+            - Errors
+            - User not found (email field)
+            - Successes
+            - success message
+
+        """
+
+        otp = create_verification_otp()
+        send_registration_otp_mail(request.user.email, otp)
+
+        return Response(
+            {
+                "success": "OTP sent",
+                "user": UserSerializer(request.user).details_serializer(),
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class UserVerifyOTPAPI(APIView):
+    """API view to verify OTP for user verification
+
+    Methods:
+        POST
+    """
+
+    permission_classes = []
+
+    def post(self, request):
+        """POST Method to verify OTP for user verification
+
+        Input Serializer:
+            - email
+            - otp
+
+        Output Serializer:
+            - success message
+
+        Possible Outputs:
+            - Errors
+            - User not found (email field)
+            - Incorrect OTP (otp field)
+            - Successes
+            - success message
+
+        """
+
+        otp = request.data.get("otp")
+
+        user_otp = UserVerificationOTP.objects.filter(email=request.user.email).first()
+
+        if not user_otp:
+            raise ValidationError({"error": "OTP not found", "field": "otp"})
+
+        if user_otp.otp != otp:
+            raise ValidationError({"error": "Incorrect OTP", "field": "otp"})
+
+        CustomUser.objects.filter(email=request.user.email).update(email_verified=True)
+
+        return Response(
+            {
+                "success": "OTP verified",
+                "user": UserSerializer(request.user).details_serializer(),
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class UserListAPI(APIView):
+    """API view to list all users
+
+    Methods:
+        GET
+    """
+
+    def get(self, request):
+        """GET Method to list all users
+
+        Output Serializer:
+            - User Serializer (details_serializer)
+
+        Possible Outputs:
+            - Errors
+            - None
+            - Successes
+            - list of users
+
+        """
+
+        users = CustomUser.objects.all()
+
+        return Response(
+            {
+                "users": [
+                    UserSerializer(user).condensed_details_serializer()
+                    for user in users
+                ]
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class OrganisationCreateAPI(APIView):
+    """API view to register an organisation
+
+    Methods:
+        POST
+    """
+
+    permission_classes = []
+
+    def post(self, request):
+        """POST Method to register an organisation
+
+        Input Serializer:
+            - name
+            - logo
+            - description
+            - location
+            - email
+            - tags
+
+        Output Serializer:
+            - tokens
+            - Organisation Serializer (details_serializer)
+
+        Possible Outputs:
+            - Errors
+            - email already exists (email field)
+            - Successes
+            - tokens and user details
+
+        """
+
+        if Organisation.objects.filter(name=request.data.get("name")).exists():
+            raise ValidationError(
+                {
+                    "error": "Organisation with the same name already exists",
+                    "field": "name",
+                }
+            )
+
+        validated_data = OrganisationCreateInputValidator(
+            request.data
+        ).serialized_data()
+
+        organisation = Organisation(
+            name=validated_data["name"],
+            logo=validated_data["logo"],
+            description=validated_data["description"],
+            email=validated_data["email"],
+            tags=validated_data["tags"],
+            location=validated_data["location"],
+        )
+        organisation.save()
+
+        return Response(
+            {
+                "success": "Organisation created",
+                "organisation": OrganisationSerializer(
+                    organisation
+                ).details_serializer(),
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class OrganisationAddCommitteeMemberAPI(APIView):
+    """API view to add a committee member to an organisation
+
+    Methods:
+        POST
+    """
+
+    def post(self, request):
+        """POST Method to add a committee member to an organisation
+
+        Input Serializer:
+            - organisation_id
+            - user_id
+
+        Output Serializer:
+            - success message
+
+        Possible Outputs:
+            - Errors
+            - Organisation not found (organisation_id field)
+            - User not found (user_id field)
+            - Successes
+            - success message
+
+        """
+
+        organisation_id = request.data.get("organisation_id")
+        committee_members = request.data.get("committee_members")
+        users = []
+
+        organisation = Organisation.objects.filter(id=organisation_id).first()
+
+        if not organisation:
+            raise ValidationError(
+                {"error": "Organisation not found", "field": "organisation_id"}
+            )
+
+        for committee_member in committee_members:
+            user = CustomUser.objects.filter(id=committee_member["user_id"]).first()
+            designation = committee_member["designation"]
+
+            if not user:
+                raise ValidationError(
+                    {
+                        "error": "User not found",
+                        "field": "user_id",
+                        "user_id": committee_member["user_id"],
+                    }
+                )
+
+            if user in organisation.committee.all():
+                continue
+
+            if isinstance(designation, str) and len(designation) == 0:
+                designation = None
+
+            users.append({"user": user, "designation": committee_member["designation"]})
+
+        for user in users:
+            OrganisationCommittee(
+                user=user, organisation=organisation, designation=designation
+            ).save()
+
+        return Response(
+            {
+                "success": "Committee member added",
+                "organisation": organisation.name,
+                "committee": [
+                    UserSerializer(user).condensed_details_serializer()
+                    for user in users
+                ],
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class OrganisationRemoveCommitteeMemberAPI(APIView):
+    """API view to remove a committee member from an organisation
+
+    Methods:
+        POST
+    """
+
+    def post(self, request):
+        """POST Method to remove a committee member from an organisation
+
+        Input Serializer:
+            - organisation_id
+            - user_id
+
+        Output Serializer:
+            - success message
+
+        Possible Outputs:
+            - Errors
+            - Organisation not found (organisation_id field)
+            - User not found (user_id field)
+            - Successes
+            - success message
+
+        """
+
+        organisation_id = request.data.get("organisation_id")
+        user_id = request.data.get("user_id")
+
+        organisation = Organisation.objects.filter(id=organisation_id).first()
+        user = CustomUser.objects.filter(id=user_id).first()
+
+        if not user:
+            raise ValidationError(
+                {"error": "User not found", "field": "user_id", "user_id": user_id}
+            )
+
+        if not organisation:
+            raise ValidationError(
+                {"error": "Organisation not found", "field": "organisation_id"}
+            )
+
+        OrganisationCommittee.objects.filter(
+            user=user, organisation=organisation
+        ).delete()
+
+        return Response(
+            {
+                "success": "Committee member removed",
+                "organisation": organisation.name,
+                "removed_user": UserSerializer(user).condensed_details_serializer(),
+            },
+            status=status.HTTP_200_OK,
+        )

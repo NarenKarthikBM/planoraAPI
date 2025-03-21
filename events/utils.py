@@ -22,11 +22,6 @@ def generate_otp():
     return generateSecrets.randint(100000, 999999)
 
 
-def generate_scan_id():
-    generateSecrets = secrets.SystemRandom()
-    return generateSecrets.randint(10000000, 99999999)
-
-
 def authorize_user(data):
     user = CustomUser.objects.filter(email=data["email"]).first()
 

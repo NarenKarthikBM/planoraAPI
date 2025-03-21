@@ -18,3 +18,97 @@ class UserObtainAuthTokenInputValidator(GeneralValidator):
                 password, self.validate_type("Password", password, str), "password"
             ),
         }
+
+
+class UserRegistrationInputValidator(GeneralValidator):
+    def __init__(self, data) -> None:
+        self.data = data
+
+    def serialized_data(self):
+        email, name, password, location, lattitude, longitude, mobile_no = (
+            self.data.get("email"),
+            self.data.get("name"),
+            self.data.get("password"),
+            self.data.get("location"),
+            self.data.get("latitude"),
+            self.data.get("longitude"),
+            self.data.get("mobile_no"),
+        )
+        return {
+            "email": self.validate_data(
+                email,
+                self.validate_type("Email", email, str)
+                or self.validate_contains("Email", email, ["@"]),
+                "email",
+            ),
+            "name": self.validate_data(
+                name, self.validate_type("Name", name, str), "name"
+            ),
+            "password": self.validate_data(
+                password, self.validate_type("Password", password, str), "password"
+            ),
+            "location": self.validate_data(
+                location,
+                self.validate_type("Location", location, str),
+                "location",
+            ),
+            "latitude": self.validate_data(
+                lattitude,
+                self.validate_type("Latitude", lattitude, float) if lattitude else None,
+                "latitude",
+            ),
+            "longitude": self.validate_data(
+                longitude,
+                self.validate_type("Longitude", longitude, float)
+                if longitude
+                else None,
+                "longitude",
+            ),
+            "mobile_no": self.validate_data(
+                mobile_no,
+                self.validate_type("Mobile No", mobile_no, str) if mobile_no else None,
+                "mobile_no",
+            ),
+        }
+
+
+class OrganisationCreateInputValidator(GeneralValidator):
+    def __init__(self, data) -> None:
+        self.data = data
+
+    def serialized_data(self):
+        name, email, location, tags, description = (
+            self.data.get("name"),
+            self.data.get("email"),
+            self.data.get("location"),
+            self.data.get("tags"),
+            self.data.get("description"),
+        )
+        return {
+            "name": self.validate_data(
+                name, self.validate_type("Name", name, str), "name"
+            ),
+            "email": self.validate_data(
+                email,
+                self.validate_type("Email", email, str)
+                or self.validate_contains("Email", email, ["@"]),
+                "email",
+            ),
+            "location": self.validate_data(
+                location,
+                self.validate_type("Location", location, str) if location else None,
+                "location",
+            ),
+            "tags": self.validate_data(
+                tags,
+                self.validate_type("Tags", tags, list) if tags else None,
+                "tags",
+            ),
+            "description": self.validate_data(
+                description,
+                self.validate_type("Description", description, str)
+                if description
+                else None,
+                "description",
+            ),
+        }
