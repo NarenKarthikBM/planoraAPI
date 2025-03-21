@@ -49,7 +49,11 @@ class Event(models.Model):
         _("status"),
         help_text="Status",
         max_length=255,
-        choices=[("draft", "Draft"), ("published", "Published"), ("canceled", "Canceled")],
+        choices=[
+            ("draft", "Draft"),
+            ("published", "Published"),
+            ("canceled", "Canceled"),
+        ],
     )
     attendees = models.ManyToManyField(
         "users.CustomUser",
@@ -75,9 +79,9 @@ class Event(models.Model):
         verbose_name_plural = _("Events")
 
     def __str__(self):
-        return self.title
+        return self.name
 
-      
+
 class EventNotificationConfig(models.Model):
     """This model stores the details of event notification configuration
 

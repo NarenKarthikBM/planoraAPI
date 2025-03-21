@@ -35,7 +35,7 @@ class EventCreateAPI(APIView):
         """POST Method to create new events
 
         Input Serializer:
-            - title
+            - name
             - description
             - start_datetime
             - end_datetime
