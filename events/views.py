@@ -277,23 +277,17 @@ class EventsFeedAPI(APIView):
         paginator = self.CustomPaginator()
         paginated_events = paginator.paginate_queryset(events, request)
 
-        return paginator.get_paginated_response(
+        return Response(
             {
                 "events": [
-                    {
-                        "details": EventSerializer(event).details_serializer(),
-                        "has_liked": models.EventInteractions.objects.filter(
-                            event=event, user=request.user, interaction_type="like"
-                        ).exists(),
-                        "rsvped": models.EventAttendees.objects.filter(
-                            event=event, user=request.user
-                        ).exists(),
-                        "attended": models.EventAttendees.objects.filter(
-                            event=event, user=request.user, is_present=True
-                        ).exists(),
-                    }
+                    {"details": EventSerializer(event).details_serializer()}
                     for event in paginated_events
-                ]
+                ],
+                "total_events": events.count(),
+                "page": paginator.page.number,
+                "total_pages": paginator.page.paginator.num_pages,
+                "next_page_link": paginator.get_next_link(),
+                "previous_page_link": paginator.get_previous_link(),
             },
             status=status.HTTP_200_OK,
         )
