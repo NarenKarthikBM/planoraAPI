@@ -41,3 +41,5 @@ class EventSerializer:
 
     def get_scan_id(self):
         return self.obj.scan_id
+
+
