@@ -112,3 +112,23 @@ class OrganisationCreateInputValidator(GeneralValidator):
                 "description",
             ),
         }
+
+class UserPreferenceInputValidator(GeneralValidator):
+    def __init__(self, data) -> None:
+        self.data = data
+
+    def serialized_data(self):
+        return {
+            "preferred_categories": self.validate_data(
+                self.data.get("preferred_categories") or [],
+                self.validate_type("preferred_categories", self.data.get("preferred_categories"), list),
+            ),
+            "preferred_event_types": self.validate_data(
+                self.data.get("preferred_event_types") or [],
+                self.validate_type("preferred_event_types", self.data.get("preferred_event_types"), list),
+            ),
+            "preferred_tags": self.validate_data(
+                self.data.get("preferred_tags") or [],
+                self.validate_type("preferred_tags", self.data.get("preferred_tags"), list),
+            ),
+        }
