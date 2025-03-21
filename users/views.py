@@ -297,6 +297,10 @@ class OrganisationCreateAPI(APIView):
         )
         organisation.save()
 
+        OrganisationCommittee(
+            user=request.user, organisation=organisation, designation="Owner"
+        ).save()
+
         return Response(
             {
                 "success": "Organisation created",
