@@ -289,7 +289,7 @@ class OrganisationCreateAPI(APIView):
 
         organisation = Organisation(
             name=validated_data["name"],
-            logo=validated_data["logo"],
+            # logo=validated_data["logo"],
             description=validated_data["description"],
             email=validated_data["email"],
             tags=validated_data["tags"],
