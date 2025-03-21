@@ -176,13 +176,16 @@ class EventsPublicFeedAPI(APIView):
         paginator = self.CustomPaginator()
         paginated_events = paginator.paginate_queryset(events, request)
 
-        return paginator.get_paginated_response(
-            {
-                "events": [
-                    {"details": EventSerializer(event).details_serializer()}
-                    for event in paginated_events
-                ]
-            }
+        return Response(
+            paginator.get_paginated_response(
+                {
+                    "events": [
+                        {"details": EventSerializer(event).details_serializer()}
+                        for event in paginated_events
+                    ]
+                }
+            ),
+            status=status.HTTP_200_OK,
         )
 
 
