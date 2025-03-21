@@ -124,7 +124,7 @@ class EventsPublicFeedAPI(APIView):
             - Successes
                 - events feed
         """
-        search_query = request.GET.get("search_query", "").strip()
+        search_query = request.GET.get("search", "").strip()
         
         # Fetch all upcoming published events
         events = models.Event.objects.filter(
@@ -138,6 +138,41 @@ class EventsPublicFeedAPI(APIView):
                 Q(description__icontains=search_query) |  # Search in event description
                 Q(location__icontains=search_query)  # Search in event location
             )
+
+
+        # Retrieve query parameters
+        category = request.GET.get("category")
+        event_type = request.GET.get("type")
+        tags = request.GET.getlist("tags")  # Handles multiple tags
+        # Get sorting parameters from the request
+        sort_by = request.GET.get("sort_by", "start_datetime")  # Default to start_datetime
+        order = request.GET.get("order", "asc")  # Default to ascending order
+
+        # Define allowed sorting fields
+        allowed_sort_fields = ["start_datetime", "name", "scan_id"]
+
+        # Ensure sort_by is valid
+        if sort_by not in allowed_sort_fields:
+            sort_by = "start_datetime"  # Default to start_datetime if invalid
+
+        # Apply sorting order
+        if order == "desc":
+            sort_by = f"-{sort_by}"  # Prefix '-' for descending order
+
+        # Apply sorting
+        events = events.order_by(sort_by)
+
+        events = models.Event.objects.filter(
+            status="active", start_time__gte=timezone.now()
+        ).order_by("start_time")
+
+        if category:
+            events = events.filter(category=category)
+        if event_type:
+            events = events.filter(type=event_type)
+        if tags:  # Assuming tags is a JSONField containing a list
+            events = events.filter(tags__contains=tags)
+
 
         events = events.order_by("start_datetime")  # Order by date
 
@@ -160,7 +195,7 @@ class EventsPublicFeedAPI(APIView):
 
 
 class EventsFeedAPI(APIView):
-    # ! need to add search (done), filter and pagination
+    # ! need to add search, filter and pagination
     """API view to fetch events feed
 
     Methods:
@@ -168,6 +203,12 @@ class EventsFeedAPI(APIView):
     """
 
     permission_classes = []
+
+    class CustomPaginator(PageNumberPagination):
+            """Custom paginator for this view only"""
+            page_size = 25  # Set page size to 25
+            # page_size_query_param = 'page_size'  # Optional: Allow users to override page size
+            # max_page_size = 100  # Prevent excessive page sizes
 
     def get(self, request):
         """GET Method to fetch events feed
@@ -181,14 +222,8 @@ class EventsFeedAPI(APIView):
             - Successes
                 - events feed
         """
-        class CustomPaginator(PageNumberPagination):
-            """Custom paginator for this view only"""
-            page_size = 25  # Set page size to 25
-            # page_size_query_param = 'page_size'  # Optional: Allow users to override page size
-            # max_page_size = 100  # Prevent excessive page sizes
+        search_query = request.GET.get("search", "").strip()
 
-        search_query = request.GET.get("search_query", "").strip()
-        
         # Fetch all upcoming published events
         events = models.Event.objects.filter(
             status="published", start_datetime__gte=timezone.now()
@@ -202,8 +237,42 @@ class EventsFeedAPI(APIView):
                 Q(location__icontains=search_query)  # Search in event location
             )
 
+        # Retrieve query parameters
+        category = request.GET.get("category")
+        event_type = request.GET.get("type")
+        tags = request.GET.getlist("tags")  # Handles multiple tags
+        # Get sorting parameters from the request
+        sort_by = request.GET.get("sort_by", "start_datetime")  # Default to start_datetime
+        order = request.GET.get("order", "asc")  # Default to ascending order
+
+        # Define allowed sorting fields
+        allowed_sort_fields = ["start_datetime", "name", "scan_id"]
+
+        # Ensure sort_by is valid
+        if sort_by not in allowed_sort_fields:
+            sort_by = "start_datetime"  # Default to start_datetime if invalid
+
+        # Apply sorting order
+        if order == "desc":
+            sort_by = f"-{sort_by}"  # Prefix '-' for descending order
+
+        # Apply sorting
+        events = events.order_by(sort_by)
+
+        events = models.Event.objects.filter(
+            status="active", start_time__gte=timezone.now()
+        ).order_by("start_time")
+
+        if category:
+            events = events.filter(category=category)
+        if event_type:
+            events = events.filter(type=event_type)
+        if tags:  # Assuming tags is a JSONField containing a list
+            events = events.filter(tags__contains=tags)
+
+
         events = events.order_by("start_datetime")  # Order by date
-        
+
         # Apply pagination (Only for this view)
         paginator = self.CustomPaginator()
         paginated_events = paginator.paginate_queryset(events, request)
