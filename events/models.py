@@ -66,38 +66,7 @@ class Event(models.Model):
     def __str__(self):
         return self.title
 
-class UserPreference(models.Model):
-    """This model stores user designation, preferences, and email notification settings"""
 
-    user = models.OneToOneField(
-        "users.CustomUser",
-        on_delete=models.CASCADE,
-        verbose_name=_("user"),
-        help_text="User",
-        related_name="preferences",
-    )
-
-    # Designation
-    designation = models.CharField(_("designation"), help_text="User Designation", max_length=255)
-
-    # Preferred Categories (Multiple Choices)
-    preferred_categories = models.CharField(_("preferred_category"),help_text="Category",max_length=50,choices=categories)
-
-    # Email Notification Preferences
-    allow_marketing_emails = models.BooleanField(_("marketing emails"), help_text="Allow Marketing Emails", default=True)
-    allow_event_updates = models.BooleanField(_("event updates"), help_text="Allow Event Updates", default=True)
-    allow_system_notifications = models.BooleanField(_("system notifications"), help_text="Allow System Notifications", default=True)
-
-    # Timestamps
-    created_at = models.DateTimeField(_("created at"), help_text="Created At", auto_now_add=True)
-    updated_at = models.DateTimeField(_("updated at"), help_text="Updated At", auto_now=True)
-
-    class Meta:
-        verbose_name = _("User Preference")
-        verbose_name_plural = _("User Preferences")
-
-    def __str__(self):
-        return f"Preferences of {self.user.name}"
 
 class EventNotificationConfig(models.Model):
     """This model stores the details of event notification configuration
@@ -147,7 +116,7 @@ class EventAttendees(models.Model):
     )
     attendee = models.ForeignKey(
         "users.CustomUser",
-        on_delete=models.CASCADE,
+        on_delete=models.CASCprADE,
         verbose_name="attendee",
         help_text="Attendee",
         related_name="events",
