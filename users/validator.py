@@ -113,7 +113,8 @@ class OrganisationCreateInputValidator(GeneralValidator):
             ),
         }
 
-class UserPreferenceValidator(GeneralValidator):
+
+class UserPreferenceInputValidator(GeneralValidator):
     def __init__(self, data):
         self.data = data
 
@@ -134,14 +135,24 @@ class UserPreferenceValidator(GeneralValidator):
             ),
             "allow_marketing_emails": self.validate_data(
                 self.data.get("allow_marketing_emails"),
-                self.validate_type("allow_marketing_emails", self.data.get("allow_marketing_emails"), bool),
+                self.validate_type(
+                    "allow_marketing_emails",
+                    self.data.get("allow_marketing_emails"),
+                    bool,
+                ),
             ),
             "allow_event_updates": self.validate_data(
                 self.data.get("allow_event_updates"),
-                self.validate_type("allow_event_updates", self.data.get("allow_event_updates"), bool),
+                self.validate_type(
+                    "allow_event_updates", self.data.get("allow_event_updates"), bool
+                ),
             ),
             "allow_system_notifications": self.validate_data(
                 self.data.get("allow_system_notifications"),
-                self.validate_type("allow_system_notifications", self.data.get("allow_system_notifications"), bool),
+                self.validate_type(
+                    "allow_system_notifications",
+                    self.data.get("allow_system_notifications"),
+                    bool,
+                ),
             ),
         }

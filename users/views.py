@@ -7,20 +7,22 @@ from users.models import (
     CustomUser,
     Organisation,
     OrganisationCommittee,
+    UserPreference,
     UserVerificationOTP,
 )
-from users.serializers import OrganisationSerializer, UserSerializer
+from users.serializers import (
+    OrganisationSerializer,
+    UserPreferenceSerializer,
+    UserSerializer,
+)
 from users.utils import authorize_user, create_verification_otp
 from users.validator import (
     OrganisationCreateInputValidator,
     UserObtainAuthTokenInputValidator,
+    UserPreferenceInputValidator,
     UserRegistrationInputValidator,
 )
 from utils.emails import send_registration_otp_mail
-
-from users.models import CustomUser, UserPreference
-from users.serializers import UserPreferenceSerializer
-from users.validator import UserPreferenceInputValidator
 
 
 class UserObtainAuthTokenAPI(APIView):
@@ -439,7 +441,7 @@ class OrganisationRemoveCommitteeMemberAPI(APIView):
             },
             status=status.HTTP_200_OK,
         )
-    
+
 
 class UserPreferenceRetrieveAPI(APIView):
     """API view to retrieve user preferences"""
@@ -461,7 +463,9 @@ class UserPreferenceRetrieveAPI(APIView):
         user_preferences = UserPreference.objects.filter(user=user).first()
 
         if not user_preferences:
-            raise ValidationError({"error": "User preferences not found", "field": "user"})
+            raise ValidationError(
+                {"error": "User preferences not found", "field": "user"}
+            )
 
         return Response(
             {"preferences": UserPreferenceSerializer(user_preferences).data},
@@ -502,9 +506,13 @@ class UserPreferenceUpdateAPI(APIView):
         # Update fields
         user_preferences.designation = validated_data["designation"]
         user_preferences.preferred_categories = validated_data["preferred_categories"]
-        user_preferences.allow_marketing_emails = validated_data["allow_marketing_emails"]
+        user_preferences.allow_marketing_emails = validated_data[
+            "allow_marketing_emails"
+        ]
         user_preferences.allow_event_updates = validated_data["allow_event_updates"]
-        user_preferences.allow_system_notifications = validated_data["allow_system_notifications"]
+        user_preferences.allow_system_notifications = validated_data[
+            "allow_system_notifications"
+        ]
 
         user_preferences.save()
 
