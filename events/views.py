@@ -172,7 +172,6 @@ class EventsPublicFeedAPI(APIView):
             events = events.filter(tags__contains=tags)
 
         # events = events.order_by("start_datetime")  # Order by date
-
         # Apply pagination (Only for this view)
         paginator = self.CustomPaginator()
         paginated_events = paginator.paginate_queryset(events, request)
@@ -180,11 +179,10 @@ class EventsPublicFeedAPI(APIView):
         return paginator.get_paginated_response(
             {
                 "events": [
-                    {"details": EventSerializer(event).details_serializer}
+                    {"details": EventSerializer(event).details_serializer()}
                     for event in paginated_events
                 ]
-            },
-            status=status.HTTP_200_OK,
+            }
         )
 
 
