@@ -13,4 +13,14 @@ users_api_v1_urls = [
         views.UserRegistrationAPI().as_view(),
         name="user-registration",
     ),
+    path(
+        "send-verification-otp/",
+        views.UserSendVerificationOTPAPI().as_view(),
+        name="user-send-verification-otp",
+    ),
+    path(
+        "verify-otp/",
+        views.UserVerifyOTPAPI().as_view(),
+        name="user-verify-otp",
+    ),
 ]
