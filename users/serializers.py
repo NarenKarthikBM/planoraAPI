@@ -25,7 +25,6 @@ class UserSerializer:
             "latitude": self.obj.latitude,
             "longitude": self.obj.longitude,
             "mobile_no": self.obj.mobile_no,
-            "role": self.obj.role,
             "is_active": self.obj.is_active,
             "is_staff": self.obj.is_staff,
             "is_superuser": self.obj.is_superuser,

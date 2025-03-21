@@ -3,8 +3,6 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-USER_ROLE_CHOICES = [("Admin", "Admin"), ("Member", "Member")]
-
 
 class CustomUserManager(BaseUserManager):
     """
