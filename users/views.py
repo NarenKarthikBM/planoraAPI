@@ -252,8 +252,6 @@ class OrganisationCreateAPI(APIView):
         POST
     """
 
-    permission_classes = []
-
     def post(self, request):
         """POST Method to register an organisation
 
