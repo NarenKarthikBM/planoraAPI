@@ -125,7 +125,7 @@ class CustomUserAdmin(AuthUserAdmin):
     ]
 
 
-class UserAccessTokensAdmin(admin.ModelAdmin):
+class UserAuthTokensAdmin(admin.ModelAdmin):
     list_display = (
         "user",
         "auth_token",
@@ -195,7 +195,7 @@ class UserAccessRequestsAdmin(admin.ModelAdmin):
     autocomplete_fields = ("user",)
 
 
-admin.site.register(models.UserAccessRequests, UserAccessRequestsAdmin)
+# admin.site.register(models.UserAccessRequests, UserAccessRequestsAdmin)
 admin.site.register(models.CustomUser, CustomUserAdmin)
-admin.site.register(models.UserAccessTokens, UserAccessTokensAdmin)
-admin.site.register(models.UserPermissions, UserPermissionsAdmin)
+admin.site.register(models.UserAuthTokens, UserAuthTokensAdmin)
+# admin.site.register(models.UserPermissions, UserPermissionsAdmin)
