@@ -49,7 +49,7 @@ class Event(models.Model):
         _("status"),
         help_text="Status",
         max_length=255,
-        choices=[("draft", "Draft"), ("published", "Published")],
+        choices=[("draft", "Draft"), ("published", "Published"), ("canceled", "Canceled")],
     )
     attendees = models.ManyToManyField(
         "users.CustomUser",
@@ -77,8 +77,7 @@ class Event(models.Model):
     def __str__(self):
         return self.title
 
-
-
+      
 class EventNotificationConfig(models.Model):
     """This model stores the details of event notification configuration
 
@@ -95,6 +94,9 @@ class EventNotificationConfig(models.Model):
     )
     notification_config = models.JSONField(
         _("notification config"), help_text="Notification Config"
+    )
+    reminder_mail_sent = models.BooleanField(
+        _("reminder mail sent"), help_text="reminder mail sent", default=False
     )
     created_at = models.DateTimeField(
         _("created at"), help_text="Created At", auto_now_add=True
