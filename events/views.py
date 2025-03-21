@@ -37,8 +37,8 @@ class EventCreateAPI(APIView):
         Input Serializer:
             - title
             - description
-            - start_time
-            - end_time
+            - start_datetime
+            - end_datetime
             - location
             - organisation_id
 
@@ -126,7 +126,7 @@ class EventsPublicFeedAPI(APIView):
         # Fetch all upcoming published events
         events = models.Event.objects.filter(
             status="published", start_datetime__gte=timezone.now()
-        ).order_by("start_time")
+        ).order_by("start_datetime")
 
         # Apply search filtering if user has entered a keyword
         if search_query:
@@ -222,7 +222,7 @@ class EventsFeedAPI(APIView):
         # Fetch all upcoming published events
         events = models.Event.objects.filter(
             status="published", start_datetime__gte=timezone.now()
-        ).order_by("start_time")
+        ).order_by("start_datetime")
 
         # Apply search filtering if user has entered a keyword
         if search_query:
@@ -467,8 +467,8 @@ class EventListByOrganisation(APIView):
             )
 
         events = models.Event.objects.filter(
-            start_time__gte=timezone.now(), organisation__id=organisation_id
-        ).order_by("start_time")
+            start_datetime__gte=timezone.now(), organisation__id=organisation_id
+        ).order_by("start_datetime")
 
         return Response(
             {
