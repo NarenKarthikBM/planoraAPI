@@ -113,22 +113,35 @@ class OrganisationCreateInputValidator(GeneralValidator):
             ),
         }
 
-class UserPreferenceInputValidator(GeneralValidator):
-    def __init__(self, data) -> None:
+class UserPreferenceValidator(GeneralValidator):
+    def __init__(self, data):
         self.data = data
 
     def serialized_data(self):
         return {
+            "user": self.validate_data(self.data.get("user")),
+            "designation": self.validate_data(
+                self.data.get("designation"),
+                self.validate_type("designation", self.data.get("designation"), str),
+            ),
             "preferred_categories": self.validate_data(
-                self.data.get("preferred_categories") or [],
-                self.validate_type("preferred_categories", self.data.get("preferred_categories"), list),
+                self.data.get("preferred_categories"),
+                self.validate_choices(
+                    "preferred_categories",
+                    self.data.get("preferred_categories"),
+                    self.categories,  # Must be defined elsewhere
+                ),
             ),
-            "preferred_event_types": self.validate_data(
-                self.data.get("preferred_event_types") or [],
-                self.validate_type("preferred_event_types", self.data.get("preferred_event_types"), list),
+            "allow_marketing_emails": self.validate_data(
+                self.data.get("allow_marketing_emails"),
+                self.validate_type("allow_marketing_emails", self.data.get("allow_marketing_emails"), bool),
             ),
-            "preferred_tags": self.validate_data(
-                self.data.get("preferred_tags") or [],
-                self.validate_type("preferred_tags", self.data.get("preferred_tags"), list),
+            "allow_event_updates": self.validate_data(
+                self.data.get("allow_event_updates"),
+                self.validate_type("allow_event_updates", self.data.get("allow_event_updates"), bool),
+            ),
+            "allow_system_notifications": self.validate_data(
+                self.data.get("allow_system_notifications"),
+                self.validate_type("allow_system_notifications", self.data.get("allow_system_notifications"), bool),
             ),
         }
