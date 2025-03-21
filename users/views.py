@@ -18,6 +18,10 @@ from users.validator import (
 )
 from utils.emails import send_registration_otp_mail
 
+from users.models import CustomUser, UserPreference
+from users.serializers import UserPreferenceSerializer
+from users.validator import UserPreferenceInputValidator
+
 
 class UserObtainAuthTokenAPI(APIView):
     """API view to obtain auth tokens
@@ -432,6 +436,82 @@ class OrganisationRemoveCommitteeMemberAPI(APIView):
                 "success": "Committee member removed",
                 "organisation": organisation.name,
                 "removed_user": UserSerializer(user).condensed_details_serializer(),
+            },
+            status=status.HTTP_200_OK,
+        )
+    
+
+class UserPreferenceRetrieveAPI(APIView):
+    """API view to retrieve user preferences"""
+
+    def get(self, request):
+        """GET Method to retrieve user preferences
+
+        Output Serializer:
+            - UserPreference Serializer (details_serializer)
+
+        Possible Outputs:
+            - Errors
+                - User preferences not found (field: user)
+            - Successes
+                - User preferences data
+        """
+
+        user = request.user  # Assuming authentication is used
+        user_preferences = UserPreference.objects.filter(user=user).first()
+
+        if not user_preferences:
+            raise ValidationError({"error": "User preferences not found", "field": "user"})
+
+        return Response(
+            {"preferences": UserPreferenceSerializer(user_preferences).data},
+            status=status.HTTP_200_OK,
+        )
+
+
+class UserPreferenceUpdateAPI(APIView):
+    """API view to update user preferences"""
+
+    def post(self, request):
+        """POST Method to update user preferences
+
+        Input Serializer:
+            - designation
+            - preferred_categories
+            - allow_marketing_emails
+            - allow_event_updates
+            - allow_system_notifications
+
+        Output Serializer:
+            - Updated user preferences
+
+        Possible Outputs:
+            - Errors
+                - Invalid data fields
+            - Successes
+                - Updated preferences
+        """
+
+        user = request.user
+
+        validated_data = UserPreferenceInputValidator(request.data).serialized_data()
+
+        # Retrieve or create user preferences
+        user_preferences, created = UserPreference.objects.get_or_create(user=user)
+
+        # Update fields
+        user_preferences.designation = validated_data["designation"]
+        user_preferences.preferred_categories = validated_data["preferred_categories"]
+        user_preferences.allow_marketing_emails = validated_data["allow_marketing_emails"]
+        user_preferences.allow_event_updates = validated_data["allow_event_updates"]
+        user_preferences.allow_system_notifications = validated_data["allow_system_notifications"]
+
+        user_preferences.save()
+
+        return Response(
+            {
+                "success": "User preferences updated",
+                "preferences": UserPreferenceSerializer(user_preferences).data,
             },
             status=status.HTTP_200_OK,
         )
