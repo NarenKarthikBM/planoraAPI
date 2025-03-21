@@ -1,6 +1,7 @@
-from datetime import timezone
-
+from django.db.models import Q
+from django.utils import timezone
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -9,11 +10,12 @@ from events.validator import EventCreateInputValidator
 from users.models import OrganisationCommittee
 from users.serializers import UserSerializer
 
-from . import models
+from django.http import HttpResponse
+from utils.qr_generator import generate_qr_code  # Already implemented
+from utils.calendar_integration import generate_google_calendar_link, generate_ics_event
 
-from .models import Event
-from django.shortcuts import render
-from django.db.models import Q
+
+from . import models
 
 # def search_events(request):
 #     results = []
@@ -68,6 +70,19 @@ class EventCreateAPI(APIView):
 
         validated_data = EventCreateInputValidator(request.data).serialized_data()
 
+        serializer = EventSerializer(data=request.data)
+        if serializer.is_valid():
+            event = serializer.save()
+
+            # ✅ Step 2: Generate QR Code (existing logic)
+            qr_code_image = generate_qr_code(event.id)
+
+            # ✅ Step 3: Generate Google Calendar Link
+            google_calendar_link = generate_google_calendar_link(event)
+
+            # ✅ Step 4: Generate ICS File
+            ics_content = generate_ics_event(event)
+
         event = models.Event(
             name=validated_data.get("name"),
             scan_id=validated_data.get("scan_id"),
@@ -87,15 +102,19 @@ class EventCreateAPI(APIView):
         event.save()
 
         return Response(
-            {
-                "success": "Event created",
-                "details": EventSerializer(event).details_serializer(),
-            },
-            status=status.HTTP_201_CREATED,
-        )
+                {
+                    "success": "Event created",
+                    "event_details": EventSerializer(event).data,
+                    "qr_code": qr_code_image,  # Base64 or URL
+                    "google_calendar_link": google_calendar_link,
+                    "ics_file": ics_content.decode('utf-8'),  # .ics content
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class EventsPublicFeedAPI(APIView):
+class EventsPublicFeedAPI(APIView): 
     """API view to fetch events feed
 
     Methods:
@@ -104,6 +123,13 @@ class EventsPublicFeedAPI(APIView):
 
     permission_classes = []
     authentication_classes = []
+
+    class CustomPaginator(PageNumberPagination):
+        """Custom paginator for this view only"""
+
+        page_size = 25  # Set page size to 25
+        # page_size_query_param = 'page_size'  # Optional: Allow users to override page size
+        # max_page_size = 100  # Prevent excessive page sizes
 
     def get(self, request):
         """GET Method to fetch events feed
@@ -117,8 +143,8 @@ class EventsPublicFeedAPI(APIView):
             - Successes
                 - events feed
         """
-        search_query = request.GET.get("search_query", "").strip()
-        
+        search_query = request.GET.get("search", "").strip()
+
         # Fetch all upcoming published events
         events = models.Event.objects.filter(
             status="published", start_datetime__gte=timezone.now()
@@ -127,18 +153,19 @@ class EventsPublicFeedAPI(APIView):
         # Apply search filtering if user has entered a keyword
         if search_query:
             events = events.filter(
-                Q(name__icontains=search_query) |  # Search in event name
-                Q(description__icontains=search_query) |  # Search in event description
-                Q(location__icontains=search_query)  # Search in event location
+                Q(name__icontains=search_query)  # Search in event name
+                | Q(description__icontains=search_query)  # Search in event description
+                | Q(location__icontains=search_query)  # Search in event location
             )
-
 
         # Retrieve query parameters
         category = request.GET.get("category")
         event_type = request.GET.get("type")
         tags = request.GET.getlist("tags")  # Handles multiple tags
         # Get sorting parameters from the request
-        sort_by = request.GET.get("sort_by", "start_datetime")  # Default to start_datetime
+        sort_by = request.GET.get(
+            "sort_by", "start_datetime"
+        )  # Default to start_datetime
         order = request.GET.get("order", "asc")  # Default to ascending order
 
         # Define allowed sorting fields
@@ -155,9 +182,9 @@ class EventsPublicFeedAPI(APIView):
         # Apply sorting
         events = events.order_by(sort_by)
 
-        events = models.Event.objects.filter(
-            status="active", start_time__gte=timezone.now()
-        ).order_by("start_time")
+        # events = models.Event.objects.filter(
+        #     status="active", start_datetime__gte=timezone.now()
+        # ).order_by("start_datetime")
 
         if category:
             events = events.filter(category=category)
@@ -166,16 +193,17 @@ class EventsPublicFeedAPI(APIView):
         if tags:  # Assuming tags is a JSONField containing a list
             events = events.filter(tags__contains=tags)
 
+        # events = events.order_by("start_datetime")  # Order by date
 
-        events = events.order_by("start_datetime")  # Order by date
+        # Apply pagination (Only for this view)
+        paginator = self.CustomPaginator()
+        paginated_events = paginator.paginate_queryset(events, request)
 
-        return Response(
+        return paginator.get_paginated_response(
             {
                 "events": [
-                    {
-                        "details": EventSerializer(event).details_serializer(),
-                    }
-                    for event in events
+                    {"details": EventSerializer(event).details_serializer}
+                    for event in paginated_events
                 ]
             },
             status=status.HTTP_200_OK,
@@ -192,6 +220,13 @@ class EventsFeedAPI(APIView):
 
     permission_classes = []
 
+    class CustomPaginator(PageNumberPagination):
+        """Custom paginator for this view only"""
+
+        page_size = 25  # Set page size to 25
+        # page_size_query_param = 'page_size'  # Optional: Allow users to override page size
+        # max_page_size = 100  # Prevent excessive page sizes
+
     def get(self, request):
         """GET Method to fetch events feed
 
@@ -204,13 +239,31 @@ class EventsFeedAPI(APIView):
             - Successes
                 - events feed
         """
+        search_query = request.GET.get("search", "").strip()
+
+
+
+        # Fetch all upcoming published events
+        events = models.Event.objects.filter(
+            status="published", start_datetime__gte=timezone.now()
+        ).order_by("start_time")
+
+        # Apply search filtering if user has entered a keyword
+        if search_query:
+            events = events.filter(
+                Q(name__icontains=search_query)  # Search in event name
+                | Q(description__icontains=search_query)  # Search in event description
+                | Q(location__icontains=search_query)  # Search in event location
+            )
 
         # Retrieve query parameters
         category = request.GET.get("category")
         event_type = request.GET.get("type")
         tags = request.GET.getlist("tags")  # Handles multiple tags
         # Get sorting parameters from the request
-        sort_by = request.GET.get("sort_by", "start_datetime")  # Default to start_datetime
+        sort_by = request.GET.get(
+            "sort_by", "start_datetime"
+        )  # Default to start_datetime
         order = request.GET.get("order", "asc")  # Default to ascending order
 
         # Define allowed sorting fields
@@ -227,9 +280,9 @@ class EventsFeedAPI(APIView):
         # Apply sorting
         events = events.order_by(sort_by)
 
-        events = models.Event.objects.filter(
-            status="active", start_time__gte=timezone.now()
-        ).order_by("start_time")
+        # events = models.Event.objects.filter(
+        #     status="active", start_datetime__gte=timezone.now()
+        # ).order_by("start_datetime")
 
         if category:
             events = events.filter(category=category)
@@ -238,7 +291,13 @@ class EventsFeedAPI(APIView):
         if tags:  # Assuming tags is a JSONField containing a list
             events = events.filter(tags__contains=tags)
 
-        return Response(
+        # events = events.order_by("start_datetime")  # Order by date
+
+        # Apply pagination (Only for this view)
+        paginator = self.CustomPaginator()
+        paginated_events = paginator.paginate_queryset(events, request)
+
+        return paginator.get_paginated_response(
             {
                 "events": [
                     {
@@ -253,12 +312,14 @@ class EventsFeedAPI(APIView):
                             event=event, user=request.user, is_present=True
                         ).exists(),
                     }
-                    for event in events
+                    for event in paginated_events
                 ]
             },
             status=status.HTTP_200_OK,
-        )
 
+            
+        )
+        
 
 class EventInteractionAPI(APIView):
     """API view to interact with events
@@ -592,3 +653,12 @@ class EventMarkPresent(APIView):
         return Response(
             {"success": "Attendee marked as present"}, status=status.HTTP_200_OK
         )
+    
+class DownloadICSAPI(APIView):
+    def get(self, request, event_id):
+        event = Event.objects.get(id=event_id)
+        ics_content = generate_ics_event(event)
+
+        response = HttpResponse(ics_content, content_type="text/calendar")
+        response['Content-Disposition'] = f'attachment; filename="{event.name}.ics"'
+        return response
