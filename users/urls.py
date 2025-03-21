@@ -8,4 +8,9 @@ users_api_v1_urls = [
         views.UserObtainAuthTokenAPI().as_view(),
         name="user-obtain-auth-token",
     ),
+    path(
+        "register/",
+        views.UserRegistrationAPI().as_view(),
+        name="user-registration",
+    ),
 ]
