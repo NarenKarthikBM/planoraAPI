@@ -116,7 +116,7 @@ class EventAttendees(models.Model):
     )
     attendee = models.ForeignKey(
         "users.CustomUser",
-        on_delete=models.CASCprADE,
+        on_delete=models.CASCADE,
         verbose_name="attendee",
         help_text="Attendee",
         related_name="events",
