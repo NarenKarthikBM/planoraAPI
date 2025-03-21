@@ -77,3 +77,30 @@ class OrganisationSerializer:
             "created_at": serialize_datetime(self.obj.created_at),
             "updated_at": serialize_datetime(self.obj.updated_at),
         }
+
+class UserPreferenceSerializer:
+    """This serializer class contains serialization methods for UserPreference Model"""
+
+    def __init__(self, obj: models.UserPreference):
+        self.obj = obj
+
+    def details_serializer(self):
+        """This serializer method serializes all fields of the UserPreference model
+
+        Returns:
+            dict: Dictionary of all details
+        """
+
+        return {
+            "id": self.obj.id,
+            "user": UserSerializer(
+                self.obj.user
+            ).condensed_details_serializer(),
+            "designation": self.obj.designation,
+            "preferred_category": self.obj.preferred_categories,
+            "allow_marketing_emails": self.obj.allow_marketing_emails,
+            "allow_event_updates": self.obj.allow_event_updates,
+            "allow_system_notifications": self.obj.allow_system_notifications,
+            "created_at": self.obj.created_at,
+            "updated_at": self.obj.updated_at,
+        }
