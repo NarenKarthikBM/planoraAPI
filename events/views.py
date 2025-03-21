@@ -11,6 +11,19 @@ from users.serializers import UserSerializer
 
 from . import models
 
+from .models import Event
+from django.shortcuts import render
+from django.db.models import Q
+
+# def search_events(request):
+#     results = []
+#     if request.method == "POST":
+#         query = request.POST.get('name', '')  # Get the search input from form
+#         results = Event.objects.filter(name__icontains=query)  # Search for matching events
+
+
+#     return render(request, 'events/search_results.html', {'results': results})
+
 
 class EventCreateAPI(APIView):
     """API view to create new events
@@ -104,10 +117,22 @@ class EventsPublicFeedAPI(APIView):
             - Successes
                 - events feed
         """
-
+        search_query = request.GET.get("search_query", "").strip()
+        
+        # Fetch all upcoming published events
         events = models.Event.objects.filter(
             status="published", start_datetime__gte=timezone.now()
         ).order_by("start_time")
+
+        # Apply search filtering if user has entered a keyword
+        if search_query:
+            events = events.filter(
+                Q(name__icontains=search_query) |  # Search in event name
+                Q(description__icontains=search_query) |  # Search in event description
+                Q(location__icontains=search_query)  # Search in event location
+            )
+
+        events = events.order_by("start_datetime")  # Order by date
 
         return Response(
             {
