@@ -77,6 +77,21 @@ class OrganisationSerializer:
             "updated_at": serialize_datetime(self.obj.updated_at),
         }
 
+    def condensed_details_serializer(self):
+        """This serializer method serializes all descriptive fields of the Organisation model
+
+        Returns:
+            dict: Dictionary of all organisation descriptive details
+        """
+
+        return {
+            "id": self.obj.id,
+            "name": self.obj.name,
+            "description": self.obj.description,
+            "location": self.obj.location,
+        }
+
+
 class UserPreferenceSerializer:
     """This serializer class contains serialization methods for UserPreference Model"""
 
@@ -92,9 +107,7 @@ class UserPreferenceSerializer:
 
         return {
             "id": self.obj.id,
-            "user": UserSerializer(
-                self.obj.user
-            ).condensed_details_serializer(),
+            "user": UserSerializer(self.obj.user).condensed_details_serializer(),
             "designation": self.obj.designation,
             "preferred_category": self.obj.preferred_categories,
             "allow_marketing_emails": self.obj.allow_marketing_emails,

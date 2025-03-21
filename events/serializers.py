@@ -1,4 +1,4 @@
-from users.serializers import UserSerializer
+from users.serializers import OrganisationSerializer, UserSerializer
 
 from . import models
 
@@ -18,6 +18,9 @@ class EventSerializer:
 
         return {
             "id": self.obj.id,
+            "organisation": OrganisationSerializer(
+                self.obj.organisation
+            ).condensed_details_serializer(),
             "name": self.obj.name,
             "description": self.obj.description,
             "start_datetime": self.obj.start_datetime,
