@@ -1,7 +1,16 @@
+from django.urls import path
+
+from . import views
+
 events_api_v1_urls = [
-    # path(
-    #     "obtain-auth-token/",
-    #     views.UserObtainAuthTokenAPI().as_view(),
-    #     name="user-obtain-auth-token",
-    # ),
+    path(
+        "public-feed/",
+        views.EventsPublicFeedAPI().as_view(),
+        name="events-public-feed",
+    ),
+    path(
+        "personalised-feed/",
+        views.EventsFeedAPI().as_view(),
+        name="events-personalised-feed",
+    ),
 ]

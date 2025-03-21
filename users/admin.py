@@ -21,6 +21,7 @@ class UserCreationForm(forms.ModelForm):
             "name",
             "email",
             "mobile_no",
+            "email_verified",
             "password1",
             "password2",
             "is_active",
