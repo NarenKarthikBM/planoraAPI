@@ -30,10 +30,10 @@ class EventSerializer:
             "longitude": self.obj.longitude,
             "status": self.obj.status,
             "created_by": UserSerializer(
-                self.obj.created_by.id
+                self.obj.created_by
             ).condensed_details_serializer(),
             "updated_by": UserSerializer(
-                self.obj.updated_by.id
+                self.obj.updated_by
             ).condensed_details_serializer(),
             "created_at": self.obj.created_at,
             "updated_at": self.obj.updated_at,
@@ -41,5 +41,3 @@ class EventSerializer:
 
     def get_scan_id(self):
         return self.obj.scan_id
-
-
