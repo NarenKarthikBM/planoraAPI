@@ -2,7 +2,6 @@ import secrets
 
 from users.models import (
     CustomUser,
-    UserAccessTokens,
     UserAuthTokens,
     UserVerificationOTP,
     # UserVerificationOTP,
@@ -52,7 +51,7 @@ def authorize_user(data):
 
 
 def revoke_tokens(auth_token, device_token):
-    UserAccessTokens.objects.filter(
+    UserAuthTokens.objects.filter(
         auth_token=auth_token, device_token=device_token
     ).delete()
 
