@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import authentication, exceptions
 
-from users.models import UserAuthToken
+from users.models import UserAuthTokens
 
 
 class TokenAuthentication(authentication.BaseAuthentication):
@@ -14,7 +14,7 @@ class TokenAuthentication(authentication.BaseAuthentication):
             return None
 
         try:
-            user_auth_token = UserAuthToken.objects.get(
+            user_auth_token = UserAuthTokens.objects.get(
                 auth_token=auth_token, device_token=device_token
             )
         except User.DoesNotExist:
