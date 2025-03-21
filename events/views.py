@@ -162,9 +162,9 @@ class EventsPublicFeedAPI(APIView):
         # Apply sorting
         events = events.order_by(sort_by)
 
-        events = models.Event.objects.filter(
-            status="active", start_time__gte=timezone.now()
-        ).order_by("start_time")
+        # events = models.Event.objects.filter(
+        #     status="active", start_datetime__gte=timezone.now()
+        # ).order_by("start_datetime")
 
         if category:
             events = events.filter(category=category)
@@ -174,7 +174,7 @@ class EventsPublicFeedAPI(APIView):
             events = events.filter(tags__contains=tags)
 
 
-        events = events.order_by("start_datetime")  # Order by date
+        # events = events.order_by("start_datetime")  # Order by date
 
         # Apply pagination (Only for this view)
         paginator = self.CustomPaginator()
@@ -259,9 +259,9 @@ class EventsFeedAPI(APIView):
         # Apply sorting
         events = events.order_by(sort_by)
 
-        events = models.Event.objects.filter(
-            status="active", start_time__gte=timezone.now()
-        ).order_by("start_time")
+        # events = models.Event.objects.filter(
+        #     status="active", start_datetime__gte=timezone.now()
+        # ).order_by("start_datetime")
 
         if category:
             events = events.filter(category=category)
@@ -271,7 +271,7 @@ class EventsFeedAPI(APIView):
             events = events.filter(tags__contains=tags)
 
 
-        events = events.order_by("start_datetime")  # Order by date
+        # events = events.order_by("start_datetime")  # Order by date
 
         # Apply pagination (Only for this view)
         paginator = self.CustomPaginator()
