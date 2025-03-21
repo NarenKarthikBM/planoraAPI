@@ -308,6 +308,40 @@ class OrganisationCreateAPI(APIView):
         )
 
 
+class UserOrganisationListAPI(APIView):
+    """API view to list organisations for a user
+
+    Methods:
+        GET
+    """
+
+    def get(self, request):
+        """GET Method to list organisations for a user
+
+        Output Serializer:
+            - Organisation Serializer (details_serializer)
+
+        Possible Outputs:
+            - Errors
+            - None
+            - Successes
+            - list of organisations
+        """
+
+        user = request.user
+        organisations = Organisation.objects.filter(committee__user=user)
+
+        return Response(
+            {
+                "organisations": [
+                    OrganisationSerializer(org).details_serializer()
+                    for org in organisations
+                ]
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
 class OrganisationAddCommitteeMemberAPI(APIView):
     """API view to add a committee member to an organisation
 

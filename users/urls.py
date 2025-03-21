@@ -28,4 +28,9 @@ users_api_v1_urls = [
         views.OrganisationCreateAPI().as_view(),
         name="organisation-create",
     ),
+    path(
+        "organisation-list/",
+        views.UserOrganisationListAPI().as_view(),
+        name="user-organisation-list",
+    ),
 ]
