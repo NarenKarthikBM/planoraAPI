@@ -195,7 +195,73 @@ class UserAccessRequestsAdmin(admin.ModelAdmin):
     autocomplete_fields = ("user",)
 
 
+class OrganisationAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "email",
+        "location",
+        "created_at",
+        "updated_at",
+    )
+    search_fields = (
+        "name",
+        "email",
+        "location",
+    )
+    list_filter = (
+        "created_at",
+        "updated_at",
+    )
+    ordering = ("name", "created_at")
+    list_per_page = 20
+    list_max_show_all = 1000
+    autocomplete_fields = ("committee",)
+
+
+class OrganisationCommitteeAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "organisation",
+        "designation",
+        "created_at",
+        "updated_at",
+    )
+    search_fields = (
+        "user__email",
+        "organisation__name",
+        "designation",
+    )
+    list_filter = (
+        "designation",
+        "created_at",
+        "updated_at",
+    )
+    ordering = ("organisation", "user")
+    list_per_page = 20
+    list_max_show_all = 1000
+    autocomplete_fields = ("user", "organisation")
+
+
+class UserVerificationOTPAdmin(admin.ModelAdmin):
+    list_display = (
+        "email",
+        "otp",
+        "created_at",
+    )
+    search_fields = (
+        "email",
+        "otp",
+    )
+    list_filter = ("created_at",)
+    ordering = ("email", "created_at")
+    list_per_page = 20
+    list_max_show_all = 1000
+
+
+admin.site.register(models.UserVerificationOTP, UserVerificationOTPAdmin)
 # admin.site.register(models.UserAccessRequests, UserAccessRequestsAdmin)
 admin.site.register(models.CustomUser, CustomUserAdmin)
 admin.site.register(models.UserAuthTokens, UserAuthTokensAdmin)
+admin.site.register(models.Organisation, OrganisationAdmin)
+admin.site.register(models.OrganisationCommittee, OrganisationCommitteeAdmin)
 # admin.site.register(models.UserPermissions, UserPermissionsAdmin)
