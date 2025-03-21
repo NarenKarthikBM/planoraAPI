@@ -78,6 +78,7 @@ class Event(models.Model):
         return self.title
 
 
+
 class EventNotificationConfig(models.Model):
     """This model stores the details of event notification configuration
 
