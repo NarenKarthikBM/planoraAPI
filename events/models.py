@@ -9,6 +9,8 @@ categories = [
     ("holidays", "Holidays"),
     ("dating", "Dating"),
     ("hobbies", "Hobbies"),
+    ("coding", "Coding"),
+    ("others", "Others"),
     ("business", "Business"),
     ("food_drink", "Food & Drink"),
 ]

@@ -23,4 +23,9 @@ users_api_v1_urls = [
         views.UserVerifyOTPAPI().as_view(),
         name="user-verify-otp",
     ),
+    path(
+        "create-organisation/",
+        views.OrganisationCreateAPI().as_view(),
+        name="organisation-create",
+    ),
 ]
