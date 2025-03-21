@@ -329,16 +329,18 @@ class UserOrganisationListAPI(APIView):
         """
 
         user = request.user
-        organisations = Organisation.objects.filter(committee__user=user)
+        organisation_committees = OrganisationCommittee.objects.filter(user=user)
 
         return Response(
             {
                 "organisations": [
                     {
-                        "details": OrganisationSerializer(org).details_serializer(),
-                        "designation": org.committee.get(user=user).designation,
+                        "details": OrganisationSerializer(
+                            org_committee.organisation
+                        ).details_serializer(),
+                        "designation": org_committee.designation,
                     }
-                    for org in organisations
+                    for org_committee in organisation_committees
                 ]
             },
             status=status.HTTP_200_OK,
