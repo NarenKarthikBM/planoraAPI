@@ -114,7 +114,7 @@ class UserRegistrationAPI(APIView):
         user.set_password(validated_data["password"])
         user.save()
 
-        user_authorization = authorize_user(validated_data.validated_data)
+        user_authorization = authorize_user(validated_data)
 
         return Response(user_authorization, status=status.HTTP_201_CREATED)
 
