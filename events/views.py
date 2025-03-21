@@ -106,7 +106,7 @@ class EventsPublicFeedAPI(APIView):
         """
 
         events = models.Event.objects.filter(
-            status="active", start_time__gte=timezone.now()
+            status="published", start_datetime__gte=timezone.now()
         ).order_by("start_time")
 
         return Response(
