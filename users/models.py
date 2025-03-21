@@ -4,6 +4,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 USER_ROLE_CHOICES = [("Admin", "Admin"), ("Member", "Member")]
+categories = [('music','Music'),('nightlife','Nightlife'),('concert','Concert'),('holidays','Holidays'),('dating','Dating'),('hobbies','Hobbies'),('business','Business'),('food_drink','Food & Drink')]
 
 
 class CustomUserManager(BaseUserManager):
