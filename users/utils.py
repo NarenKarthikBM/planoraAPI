@@ -68,6 +68,8 @@ def create_user(email, name, password):
 
 
 def create_verification_otp(email):
+    if UserVerificationOTP.objects.filter(email=email).exists():
+        UserVerificationOTP.objects.filter(email=email).delete()
     otp = generate_otp()
     UserVerificationOTP(email=email, otp=otp).save()
 
