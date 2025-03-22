@@ -40,6 +40,11 @@ events_api_v1_urls = [
         views.EventPublishAPI().as_view(),
         name="events-publish",
     ),
+    path(
+        "rsvp/<int:event_id>/",
+        views.EventRSVPAPI().as_view(),
+        name="events-rsvp",
+    ),
 ]
 
 # Adding media URLs inside events API (Not recommended)

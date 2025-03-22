@@ -494,7 +494,7 @@ class EventRSVPAPI(APIView):
 
     permission_classes = []
 
-    def post(self, request):
+    def post(self, request, event_id: int):
         """POST Method to RSVP for events
 
         Input Serializer:
@@ -509,8 +509,6 @@ class EventRSVPAPI(APIView):
             - Successes
                 - success message
         """
-
-        event_id = request.data.get("event_id")
 
         event = models.Event.objects.filter(id=event_id).first()
 
