@@ -52,11 +52,11 @@ class EventCreateAPI(APIView):
                 - success message
         """
 
-        organisation = OrganisationCommittee.objects.filter(
+        committee = OrganisationCommittee.objects.filter(
             organisation__id=organisation_id, user=request.user
         ).first()
 
-        if not organisation:
+        if not committee:
             return Response(
                 {"error": "Organisation not found"}, status=status.HTTP_404_NOT_FOUND
             )
@@ -76,7 +76,7 @@ class EventCreateAPI(APIView):
             tags=request.data.get("tags"),
             type=request.data.get("type"),
             status="draft",
-            organisation=organisation,
+            organisation=committee.organisation,
             created_by=request.user,
         )
         event.save()
