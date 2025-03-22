@@ -519,7 +519,7 @@ class EventRSVPAPI(APIView):
 
         models.EventAttendees.objects.get_or_create(
             event=event,
-            user=request.user,
+            attendee=request.user,
         )
 
         return Response({"success": "RSVP done"}, status=status.HTTP_200_OK)
