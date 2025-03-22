@@ -31,7 +31,7 @@ class EventCreateAPI(APIView):
 
     permission_classes = []
 
-    def post(self, request):
+    def post(self, request, organisation_id: int):
         """POST Method to create new events
 
         Input Serializer:
@@ -51,8 +51,6 @@ class EventCreateAPI(APIView):
             - Successes
                 - success message
         """
-
-        organisation_id = request.data.get("organisation_id")
 
         organisation = OrganisationCommittee.objects.filter(
             organisation__id=organisation_id, user=request.user
@@ -78,7 +76,7 @@ class EventCreateAPI(APIView):
             tags=request.data.get("tags"),
             type=request.data.get("type"),
             status="draft",
-            organisation=organisation.organisation,
+            organisation=organisation,
             created_by=request.user,
         )
         event.save()

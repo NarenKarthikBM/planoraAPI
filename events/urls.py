@@ -18,4 +18,9 @@ events_api_v1_urls = [
         views.EventListByOrganisation().as_view(),
         name="events-list-by-organisation",
     ),
+    path(
+        "create/<int:organisation_id>/",
+        views.EventCreateAPI().as_view(),
+        name="events-create",
+    ),
 ]
