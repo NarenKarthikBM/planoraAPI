@@ -291,6 +291,41 @@ class EventsFeedAPI(APIView):
         )
 
 
+class EventDetailAPI(APIView):
+    """API view to fetch event details
+
+    Methods:
+        GET
+    """
+
+    permission_classes = []
+
+    def get(self, request, event_id: int):
+        """GET Method to fetch event details
+
+        Output Serializer:
+            - EventSerializer
+
+        Possible Outputs:
+            - Errors
+                - Event not found (event_id field)
+            - Successes
+                - event details
+        """
+
+        event = models.Event.objects.filter(id=event_id).first()
+
+        if not event:
+            return Response(
+                {"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        return Response(
+            {"details": EventSerializer(event).details_serializer()},
+            status=status.HTTP_200_OK,
+        )
+
+
 class EventInteractionAPI(APIView):
     """API view to interact with events
 
