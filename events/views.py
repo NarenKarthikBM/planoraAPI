@@ -154,6 +154,41 @@ class EventEditAPI(APIView):
         )
 
 
+class EventPublishAPI(APIView):
+    """API view to publish events
+
+    Methods:
+        POST
+    """
+
+    permission_classes = []
+
+    def post(self, request, event_id: int):
+        """POST Method to publish events
+
+        Output Serializer:
+            - success message
+
+        Possible Outputs:
+            - Errors
+                - Event not found (event_id field)
+            - Successes
+                - success message
+        """
+
+        event = models.Event.objects.filter(id=event_id).first()
+
+        if not event:
+            return Response(
+                {"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        event.status = "published"
+        event.save()
+
+        return Response({"success": "Event published"}, status=status.HTTP_200_OK)
+
+
 class EventsPublicFeedAPI(APIView):
     """API view to fetch events feed
 

@@ -35,6 +35,11 @@ events_api_v1_urls = [
         views.EventEditAPI().as_view(),
         name="events-edit-details",
     ),
+    path(
+        "publish/<int:event_id>/",
+        views.EventPublishAPI().as_view(),
+        name="events-publish",
+    ),
 ]
 
 # Adding media URLs inside events API (Not recommended)
