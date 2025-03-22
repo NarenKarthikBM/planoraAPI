@@ -32,14 +32,14 @@ class EventCreateAPI(APIView):
 
     permission_classes = []
 
-    def post(self, request):
+    def post(self, request, organisation_id: int):
         """POST Method to create new events
 
         Input Serializer:
-            - title
+            - name
             - description
-            - start_time
-            - end_time
+            - start_datetime
+            - end_datetime
             - location
             - organisation_id
 
@@ -53,13 +53,11 @@ class EventCreateAPI(APIView):
                 - success message
         """
 
-        organisation_id = request.data.get("organisation_id")
-
-        organisation = OrganisationCommittee.objects.filter(
+        committee = OrganisationCommittee.objects.filter(
             organisation__id=organisation_id, user=request.user
         ).first()
 
-        if not organisation:
+        if not committee:
             return Response(
                 {"error": "Organisation not found"}, status=status.HTTP_404_NOT_FOUND
             )
@@ -79,7 +77,7 @@ class EventCreateAPI(APIView):
             tags=request.data.get("tags"),
             type=request.data.get("type"),
             status="draft",
-            organisation=organisation.organisation,
+            organisation=committee.organisation,
             created_by=request.user,
         )
         event.save()
@@ -127,7 +125,7 @@ class EventsPublicFeedAPI(APIView):
         # Fetch all upcoming published events
         events = models.Event.objects.filter(
             status="published", start_datetime__gte=timezone.now()
-        ).order_by("start_time")
+        ).order_by("start_datetime")
 
         # Apply search filtering if user has entered a keyword
         if search_query:
@@ -173,17 +171,21 @@ class EventsPublicFeedAPI(APIView):
             events = events.filter(tags__contains=tags)
 
         # events = events.order_by("start_datetime")  # Order by date
-
         # Apply pagination (Only for this view)
         paginator = self.CustomPaginator()
         paginated_events = paginator.paginate_queryset(events, request)
 
-        return paginator.get_paginated_response(
+        return Response(
             {
                 "events": [
-                    {"details": EventSerializer(event).details_serializer}
+                    {"details": EventSerializer(event).details_serializer()}
                     for event in paginated_events
-                ]
+                ],
+                "total_events": events.count(),
+                "page": paginator.page.number,
+                "total_pages": paginator.page.paginator.num_pages,
+                "next_page_link": paginator.get_next_link(),
+                "previous_page_link": paginator.get_previous_link(),
             },
             status=status.HTTP_200_OK,
         )
@@ -223,7 +225,7 @@ class EventsFeedAPI(APIView):
         # Fetch all upcoming published events
         events = models.Event.objects.filter(
             status="published", start_datetime__gte=timezone.now()
-        ).order_by("start_time")
+        ).order_by("start_datetime")
 
         # Apply search filtering if user has entered a keyword
         if search_query:
@@ -274,24 +276,53 @@ class EventsFeedAPI(APIView):
         paginator = self.CustomPaginator()
         paginated_events = paginator.paginate_queryset(events, request)
 
-        return paginator.get_paginated_response(
+        return Response(
             {
                 "events": [
-                    {
-                        "details": EventSerializer(event).details_serializer(),
-                        "has_liked": models.EventInteractions.objects.filter(
-                            event=event, user=request.user, interaction_type="like"
-                        ).exists(),
-                        "rsvped": models.EventAttendees.objects.filter(
-                            event=event, user=request.user
-                        ).exists(),
-                        "attended": models.EventAttendees.objects.filter(
-                            event=event, user=request.user, is_present=True
-                        ).exists(),
-                    }
+                    {"details": EventSerializer(event).details_serializer()}
                     for event in paginated_events
-                ]
+                ],
+                "total_events": events.count(),
+                "page": paginator.page.number,
+                "total_pages": paginator.page.paginator.num_pages,
+                "next_page_link": paginator.get_next_link(),
+                "previous_page_link": paginator.get_previous_link(),
             },
+            status=status.HTTP_200_OK,
+        )
+
+
+class EventDetailAPI(APIView):
+    """API view to fetch event details
+
+    Methods:
+        GET
+    """
+
+    permission_classes = []
+
+    def get(self, request, event_id: int):
+        """GET Method to fetch event details
+
+        Output Serializer:
+            - EventSerializer
+
+        Possible Outputs:
+            - Errors
+                - Event not found (event_id field)
+            - Successes
+                - event details
+        """
+
+        event = models.Event.objects.filter(id=event_id).first()
+
+        if not event:
+            return Response(
+                {"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        return Response(
+            {"details": EventSerializer(event).details_serializer()},
             status=status.HTTP_200_OK,
         )
 
@@ -468,8 +499,8 @@ class EventListByOrganisation(APIView):
             )
 
         events = models.Event.objects.filter(
-            start_time__gte=timezone.now(), organisation__id=organisation_id
-        ).order_by("start_time")
+            start_datetime__gte=timezone.now(), organisation__id=organisation_id
+        ).order_by("start_datetime")
 
         return Response(
             {
@@ -628,58 +659,61 @@ class EventMarkPresent(APIView):
         return Response(
             {"success": "Attendee marked as present"}, status=status.HTTP_200_OK
         )
+# <<<<<<< ck
     
 
-class EventImageUploadAPIView(APIView):
-    """API endpoint to upload images"""
+# class EventImageUploadAPIView(APIView):
+#     """API endpoint to upload images"""
 
-    parser_classes = (MultiPartParser, FormParser)  # Enables file upload handling
+#     parser_classes = (MultiPartParser, FormParser)  # Enables file upload handling
 
-    def post(self, request, *args, **kwargs):
-        serializer = serializer.EventImageSerializer(data=request.data)
+#     def post(self, request, *args, **kwargs):
+#         serializer = serializer.EventImageSerializer(data=request.data)
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Image uploaded successfully", "data": serializer.data}, status=status.HTTP_201_CREATED)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response({"message": "Image uploaded successfully", "data": serializer.data}, status=status.HTTP_201_CREATED)
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request, *args, **kwargs):
-        """Fetch all uploaded images"""
-        images = models.EventImage.objects.all()
-        serializer = serializer.EventImageSerializer(images, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+#     def get(self, request, *args, **kwargs):
+#         """Fetch all uploaded images"""
+#         images = models.EventImage.objects.all()
+#         serializer = serializer.EventImageSerializer(images, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
-class EventFeedbackAPIView(APIView):
-    """API endpoint for submitting and retrieving event feedback"""
+# class EventFeedbackAPIView(APIView):
+#     """API endpoint for submitting and retrieving event feedback"""
 
-    from rest_framework.permissions import IsAuthenticated
-    permission_classes = [IsAuthenticated]  # Only logged-in users can submit feedback
+#     from rest_framework.permissions import IsAuthenticated
+#     permission_classes = [IsAuthenticated]  # Only logged-in users can submit feedback
 
-    def post(self, request, event_id):
-        """Submit feedback for an event"""
-        try:
-            event = models.Event.objects.get(id=event_id)
-        except models.Event.DoesNotExist:
-            return Response({"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
+#     def post(self, request, event_id):
+#         """Submit feedback for an event"""
+#         try:
+#             event = models.Event.objects.get(id=event_id)
+#         except models.Event.DoesNotExist:
+#             return Response({"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        data = request.data.copy()
-        data["event"] = event.id
-        data["user"] = request.user.id  # Automatically associate feedback with the logged-in user
+#         data = request.data.copy()
+#         data["event"] = event.id
+#         data["user"] = request.user.id  # Automatically associate feedback with the logged-in user
 
-        serializer = serializer.EventFeedbackSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {"message": "Feedback submitted successfully", "data": serializer.data},
-                status=status.HTTP_201_CREATED,
-            )
+#         serializer = serializer.EventFeedbackSerializer(data=data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(
+#                 {"message": "Feedback submitted successfully", "data": serializer.data},
+#                 status=status.HTTP_201_CREATED,
+#             )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request, event_id):
-        """Retrieve all feedback for a specific event"""
-        feedbacks = models.EventFeedback.objects.filter(event_id=event_id)
-        serializer = serializer.EventFeedbackSerializer(feedbacks, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+#     def get(self, request, event_id):
+#         """Retrieve all feedback for a specific event"""
+#         feedbacks = models.EventFeedback.objects.filter(event_id=event_id)
+#         serializer = serializer.EventFeedbackSerializer(feedbacks, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+# =======
+# >>>>>>> master

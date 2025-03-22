@@ -22,6 +22,7 @@ from users.validator import (
     UserPreferenceInputValidator,
     UserRegistrationInputValidator,
 )
+from utils.emails import send_verification_email
 
 
 class UserObtainAuthTokenAPI(APIView):
@@ -151,6 +152,7 @@ class UserSendVerificationOTPAPI(APIView):
         """
 
         otp = create_verification_otp(request.user.email)
+        send_verification_email(request.user, otp)
         # send_registration_otp_mail(request.user.email, otp)
 
         return Response(
@@ -252,8 +254,6 @@ class OrganisationCreateAPI(APIView):
         POST
     """
 
-    permission_classes = []
-
     def post(self, request):
         """POST Method to register an organisation
 
@@ -291,13 +291,20 @@ class OrganisationCreateAPI(APIView):
 
         organisation = Organisation(
             name=validated_data["name"],
-            logo=validated_data["logo"],
+            # logo=validated_data["logo"],
             description=validated_data["description"],
             email=validated_data["email"],
             tags=validated_data["tags"],
             location=validated_data["location"],
         )
         organisation.save()
+
+        OrganisationCommittee(
+            user=request.user,
+            organisation=organisation,
+            designation="Founder",
+            is_founder=True,
+        ).save()
 
         return Response(
             {
@@ -307,6 +314,93 @@ class OrganisationCreateAPI(APIView):
                 ).details_serializer(),
             },
             status=status.HTTP_201_CREATED,
+        )
+
+
+class UserOrganisationListAPI(APIView):
+    """API view to list organisations for a user
+
+    Methods:
+        GET
+    """
+
+    def get(self, request):
+        """GET Method to list organisations for a user
+
+        Output Serializer:
+            - Organisation Serializer (details_serializer)
+
+        Possible Outputs:
+            - Errors
+            - None
+            - Successes
+            - list of organisations
+        """
+
+        user = request.user
+        organisation_committees = OrganisationCommittee.objects.filter(user=user)
+
+        return Response(
+            {
+                "organisations": [
+                    {
+                        "details": OrganisationSerializer(
+                            org_committee.organisation
+                        ).details_serializer(),
+                        "designation": org_committee.designation,
+                    }
+                    for org_committee in organisation_committees
+                ]
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class OrganisationCommitteeMemberListAPI(APIView):
+    """API view to list committee members of an organisation
+
+    Methods:
+        GET
+    """
+
+    def get(self, request, organisation_id):
+        """GET Method to list committee members of an organisation
+
+        Output Serializer:
+            - User Serializer (condensed_details_serializer)
+
+        Possible Outputs:
+            - Errors
+                - Organisation not found (organisation_id field)
+            - Successes
+                - list of committee members
+        """
+
+        organisation = Organisation.objects.filter(id=organisation_id).first()
+
+        if not organisation:
+            raise ValidationError(
+                {"error": "Organisation not found", "field": "organisation_id"}
+            )
+
+        committee_members = OrganisationCommittee.objects.filter(
+            organisation=organisation
+        )
+
+        return Response(
+            {
+                "committee_members": [
+                    {
+                        "user": UserSerializer(
+                            member.user
+                        ).condensed_details_serializer(),
+                        "designation": member.designation,
+                        "is_founder": member.is_founder,
+                    }
+                    for member in committee_members
+                ]
+            },
+            status=status.HTTP_200_OK,
         )
 
 

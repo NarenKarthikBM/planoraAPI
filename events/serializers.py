@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from users.serializers import UserSerializer
+from users.serializers import UserSerializer, OrganisationSerializer
+
 
 from . import models
 
@@ -19,6 +20,9 @@ class EventSerializer:
 
         return {
             "id": self.obj.id,
+            "organisation": OrganisationSerializer(
+                self.obj.organisation
+            ).condensed_details_serializer(),
             "name": self.obj.name,
             "description": self.obj.description,
             "start_datetime": self.obj.start_datetime,
@@ -31,11 +35,11 @@ class EventSerializer:
             "longitude": self.obj.longitude,
             "status": self.obj.status,
             "created_by": UserSerializer(
-                self.obj.created_by.id
+                self.obj.created_by
             ).condensed_details_serializer(),
-            "updated_by": UserSerializer(
-                self.obj.updated_by.id
-            ).condensed_details_serializer(),
+            # "updated_by": UserSerializer(
+            #     self.obj.updated_by
+            # ).condensed_details_serializer(),
             "created_at": self.obj.created_at,
             "updated_at": self.obj.updated_at,
         }
@@ -43,19 +47,3 @@ class EventSerializer:
     def get_scan_id(self):
         return self.obj.scan_id
 
-
-
-
-class EventImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.EventImage
-        fields = ["id", "title", "image", "uploaded_at", "created_at", "updated_at"]
-
-
-class EventFeedbackSerializer(serializers.ModelSerializer):
-    """Serializer for Event Feedback"""
-
-    class Meta:
-        model = models.EventFeedback
-        fields = ["id", "event", "user", "rating", "feedback", "created_at", "updated_at"]
-        read_only_fields = ["user", "created_at", "updated_at"]

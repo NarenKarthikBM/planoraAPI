@@ -19,13 +19,13 @@ class EventCreateInputValidator(GeneralValidator):
             ),
             "start_datetime": self.validate_data(
                 self.data.get("start_datetime"),
-                self.validate_date_time(
-                    "start_datetime", self.data.get("start_datetime")
+                self.validate_type(
+                    "start_datetime", self.data.get("start_datetime"), str
                 ),
             ),
             "end_datetime": self.validate_data(
                 self.data.get("end_datetime"),
-                self.validate_date_time("end_datetime", self.data.get("end_datetime")),
+                self.validate_type("end_datetime", self.data.get("end_datetime"), str),
             ),
             "category": self.validate_data(
                 self.data.get("category"),
@@ -48,10 +48,10 @@ class EventCreateInputValidator(GeneralValidator):
             ),
             "latitude": self.validate_data(
                 self.data.get("latitude"),
-                self.validate_type("latitude", self.data.get("latitude"), float),
+                self.validate_type("latitude", self.data.get("latitude"), str),
             ),
             "longitude": self.validate_data(
                 self.data.get("longitude"),
-                self.validate_type("longitude", self.data.get("longitude"), float),
+                self.validate_type("longitude", self.data.get("longitude"), str),
             ),
         }

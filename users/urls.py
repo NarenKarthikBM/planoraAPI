@@ -23,4 +23,19 @@ users_api_v1_urls = [
         views.UserVerifyOTPAPI().as_view(),
         name="user-verify-otp",
     ),
+    path(
+        "create-organisation/",
+        views.OrganisationCreateAPI().as_view(),
+        name="organisation-create",
+    ),
+    path(
+        "organisation-list/",
+        views.UserOrganisationListAPI().as_view(),
+        name="user-organisation-list",
+    ),
+    path(
+        "organisation-committee-member-list/<int:organisation_id>/",
+        views.OrganisationCommitteeMemberListAPI().as_view(),
+        name="organisation-committee-member-list",
+    ),
 ]

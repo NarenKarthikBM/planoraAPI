@@ -1,5 +1,8 @@
+import os
+
 from .env import env
 
+SETTINGS_PATH = os.path.dirname(os.path.dirname(__file__))
 # setup()
 
 # SITE_ROOT = root()
@@ -47,10 +50,14 @@ AUTH_USER_MODEL = "users.CustomUser"
 
 ROOT_URLCONF = "planoraAPI.urls"
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            os.path.join(BASE_DIR, r"templates"),
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -115,3 +122,25 @@ STATIC_ROOT = "static"
 #         "BACKEND": "django_s3_storage.storage.S3Storage",
 #     },
 # }
+
+from decouple import config
+
+# default backend
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = config("smtp.gmail.com", cast=str, default=None)
+EMAIL_PORT = config("EMAIL_PORT", cast=str, default="587")  # Recommended
+EMAIL_HOST_USER = config("planora3672@gmail.com", cast=str, default=None)
+EMAIL_HOST_PASSWORD = config("ogbx eccp hijt vcel", cast=str, default=None)
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default="True").lower() == "true"
+EMAIL_USE_SSL = config("EMAIL_USE_SSL", default="False").lower() == "true"
+
+ADMIN_USER_NAME = config("ADMIN_USER_NAME", default="Admin user")
+ADMIN_USER_EMAIL = config("ADMIN_USER_EMAIL", default=None)
+
+MANAGERS = []
+ADMINS = []
+if all([ADMIN_USER_NAME, ADMIN_USER_EMAIL]):
+    ADMINS += [(f"{ADMIN_USER_NAME}", f"{ADMIN_USER_EMAIL}")]
+    MANAGERS = ADMINS
+
+ADMIN_USER_EMAIL = "nirman22@iiserb.ac.in"

@@ -14,6 +14,21 @@ events_api_v1_urls = [
         views.EventsFeedAPI().as_view(),
         name="events-personalised-feed",
     ),
+    path(
+        "organisation-event-list/<int:organisation_id>/",
+        views.EventListByOrganisation().as_view(),
+        name="events-list-by-organisation",
+    ),
+    path(
+        "create/<int:organisation_id>/",
+        views.EventCreateAPI().as_view(),
+        name="events-create",
+    ),
+    path(
+        "details/<int:event_id>/",
+        views.EventDetailAPI().as_view(),
+        name="events-details",
+    ),
 ]
 
 # Adding media URLs inside events API (Not recommended)
