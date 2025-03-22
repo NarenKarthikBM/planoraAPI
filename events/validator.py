@@ -19,11 +19,13 @@ class EventCreateInputValidator(GeneralValidator):
             ),
             "start_datetime": self.validate_data(
                 self.data.get("start_datetime"),
-                self.validate_type("start_datetime", str),
+                self.validate_type(
+                    "start_datetime", self.data.get("start_datetime"), str
+                ),
             ),
             "end_datetime": self.validate_data(
                 self.data.get("end_datetime"),
-                self.validate_type("end_datetime", str),
+                self.validate_type("end_datetime", self.data.get("end_datetime"), str),
             ),
             "category": self.validate_data(
                 self.data.get("category"),
