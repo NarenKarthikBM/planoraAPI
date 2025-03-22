@@ -351,6 +351,53 @@ class UserOrganisationListAPI(APIView):
         )
 
 
+class OrganisationCommitteeMemberListAPI(APIView):
+    """API view to list committee members of an organisation
+
+    Methods:
+        GET
+    """
+
+    def get(self, request, organisation_id):
+        """GET Method to list committee members of an organisation
+
+        Output Serializer:
+            - User Serializer (condensed_details_serializer)
+
+        Possible Outputs:
+            - Errors
+                - Organisation not found (organisation_id field)
+            - Successes
+                - list of committee members
+        """
+
+        organisation = Organisation.objects.filter(id=organisation_id).first()
+
+        if not organisation:
+            raise ValidationError(
+                {"error": "Organisation not found", "field": "organisation_id"}
+            )
+
+        committee_members = OrganisationCommittee.objects.filter(
+            organisation=organisation
+        )
+
+        return Response(
+            {
+                "committee_members": [
+                    {
+                        "user": UserSerializer(
+                            member.user
+                        ).condensed_details_serializer(),
+                        "designation": member.designation,
+                    }
+                    for member in committee_members
+                ]
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
 class OrganisationAddCommitteeMemberAPI(APIView):
     """API view to add a committee member to an organisation
 

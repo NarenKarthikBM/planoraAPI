@@ -33,4 +33,9 @@ users_api_v1_urls = [
         views.UserOrganisationListAPI().as_view(),
         name="user-organisation-list",
     ),
+    path(
+        "organisation-committee-member-list/",
+        views.OrganisationCommitteeMemberListAPI().as_view(),
+        name="organisation-committee-member-list",
+    ),
 ]
