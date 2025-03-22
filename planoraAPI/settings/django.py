@@ -1,5 +1,8 @@
+import os
+
 from .env import env
 
+SETTINGS_PATH = os.path.dirname(os.path.dirname(__file__))
 # setup()
 
 # SITE_ROOT = root()
@@ -119,23 +122,23 @@ STATIC_ROOT = "static"
 from decouple import config
 
 # default backend
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = config("smtp.gmail.com", cast=str, default=None)
-EMAIL_PORT = config("EMAIL_PORT", cast=str, default='587') # Recommended
+EMAIL_PORT = config("EMAIL_PORT", cast=str, default="587")  # Recommended
 EMAIL_HOST_USER = config("planora3672@gmail.com", cast=str, default=None)
 EMAIL_HOST_PASSWORD = config("ogbx eccp hijt vcel", cast=str, default=None)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default="True").lower() == "true"
 EMAIL_USE_SSL = config("EMAIL_USE_SSL", default="False").lower() == "true"
 
-ADMIN_USER_NAME=config("ADMIN_USER_NAME", default="Admin user")
-ADMIN_USER_EMAIL=config("ADMIN_USER_EMAIL", default=None)
+ADMIN_USER_NAME = config("ADMIN_USER_NAME", default="Admin user")
+ADMIN_USER_EMAIL = config("ADMIN_USER_EMAIL", default=None)
 
-MANAGERS=[]
-ADMINS=[]
+MANAGERS = []
+ADMINS = []
 if all([ADMIN_USER_NAME, ADMIN_USER_EMAIL]):
-    ADMINS +=[
-        (f'{ADMIN_USER_NAME}', f'{ADMIN_USER_EMAIL}')
-    ]
-    MANAGERS=ADMINS
+    ADMINS += [(f"{ADMIN_USER_NAME}", f"{ADMIN_USER_EMAIL}")]
+    MANAGERS = ADMINS
 
-ADMIN_USER_EMAIL="nirman22@iiserb.ac.in"
+ADMIN_USER_EMAIL = "nirman22@iiserb.ac.in"
+
+TEMPLATE_DIRS = (os.path.join(SETTINGS_PATH, "templates"),)
