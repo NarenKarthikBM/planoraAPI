@@ -101,12 +101,7 @@ class CustomUserAdmin(AuthUserAdmin):
         (None, {"fields": ["email", "password"]}),
         (
             "Personal info",
-            {
-                "fields": [
-                    "name",
-                    "mobile_no",
-                ]
-            },
+            {"fields": ["name", "mobile_no", "email_verified"]},
         ),
         ("Permissions", {"fields": ["is_active", "is_staff", "is_superuser"]}),
     ]
