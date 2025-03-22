@@ -45,8 +45,12 @@ class Event(models.Model):
         _("type"), help_text="Type", max_length=255, choices=type_choices
     )
     location = models.CharField(_("location"), help_text="Location", max_length=255)
-    latitude = models.DecimalField(max_digits=9, decimal_places=5)
-    longitude = models.DecimalField(max_digits=9, decimal_places=5)
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=5, blank=True, null=True
+    )
+    longitude = models.DecimalField(
+        max_digits=9, decimal_places=5, blank=True, null=True
+    )
     status = models.CharField(
         _("status"),
         help_text="Status",

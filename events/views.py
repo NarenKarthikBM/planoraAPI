@@ -52,11 +52,11 @@ class EventCreateAPI(APIView):
                 - success message
         """
 
-        organisation = OrganisationCommittee.objects.filter(
+        committee = OrganisationCommittee.objects.filter(
             organisation__id=organisation_id, user=request.user
         ).first()
 
-        if not organisation:
+        if not committee:
             return Response(
                 {"error": "Organisation not found"}, status=status.HTTP_404_NOT_FOUND
             )
@@ -76,7 +76,7 @@ class EventCreateAPI(APIView):
             tags=request.data.get("tags"),
             type=request.data.get("type"),
             status="draft",
-            organisation=organisation,
+            organisation=committee.organisation,
             created_by=request.user,
         )
         event.save()
@@ -287,6 +287,41 @@ class EventsFeedAPI(APIView):
                 "next_page_link": paginator.get_next_link(),
                 "previous_page_link": paginator.get_previous_link(),
             },
+            status=status.HTTP_200_OK,
+        )
+
+
+class EventDetailAPI(APIView):
+    """API view to fetch event details
+
+    Methods:
+        GET
+    """
+
+    permission_classes = []
+
+    def get(self, request, event_id: int):
+        """GET Method to fetch event details
+
+        Output Serializer:
+            - EventSerializer
+
+        Possible Outputs:
+            - Errors
+                - Event not found (event_id field)
+            - Successes
+                - event details
+        """
+
+        event = models.Event.objects.filter(id=event_id).first()
+
+        if not event:
+            return Response(
+                {"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        return Response(
+            {"details": EventSerializer(event).details_serializer()},
             status=status.HTTP_200_OK,
         )
 
