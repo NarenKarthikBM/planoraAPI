@@ -29,7 +29,9 @@ def send_verification_email(user, otp):
         "otp_code": otp,
     }
 
-    html_content = render_to_string("email_templates/otp_email_template.html", context)
+    html_content = render_to_string(
+        "templates/email_templates/otp_email_template.html", context
+    )
     text_content = strip_tags(html_content)
 
     email = EmailMultiAlternatives(subject, text_content, EMAIL_HOST_USER, [user.email])
@@ -51,7 +53,7 @@ def send_event_reminder_mail(event, recipient_list):
     }
 
     html_content = render_to_string(
-        "email_templates/reminder_email.template.html", context
+        "templates/email_templates/reminder_email.template.html", context
     )  # Load template
     text_content = strip_tags(html_content)  # Plain text fallback
 
@@ -72,7 +74,7 @@ def send_thank_you_mail(event, recipient_list):
     }
 
     html_content = render_to_string(
-        "email_templates/thankyou_email_template.html", context
+        "templates/email_templates/thankyou_email_template.html", context
     )
     text_content = strip_tags(html_content)
 
@@ -92,7 +94,7 @@ def send_welcome_mail(user):
     }
 
     html_content = render_to_string(
-        "email_templates/welcome_email_template.html", context
+        "templates/email_templates/welcome_email_template.html", context
     )
     text_content = strip_tags(html_content)
 
@@ -158,7 +160,7 @@ def send_event_update_mail(event, recipient_list):
     }
 
     html_content = render_to_string(
-        "modification_email_template.html", context
+        "templates/email_templates/modification_email_template.html", context
     )  # Load template
     text_content = strip_tags(html_content)  # Plain text fallback
 
