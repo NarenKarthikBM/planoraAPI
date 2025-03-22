@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from events.serializers import EventSerializer
 from events.validator import EventCreateInputValidator
@@ -658,3 +659,61 @@ class EventMarkPresent(APIView):
         return Response(
             {"success": "Attendee marked as present"}, status=status.HTTP_200_OK
         )
+# <<<<<<< ck
+    
+
+# class EventImageUploadAPIView(APIView):
+#     """API endpoint to upload images"""
+
+#     parser_classes = (MultiPartParser, FormParser)  # Enables file upload handling
+
+#     def post(self, request, *args, **kwargs):
+#         serializer = serializer.EventImageSerializer(data=request.data)
+
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response({"message": "Image uploaded successfully", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     def get(self, request, *args, **kwargs):
+#         """Fetch all uploaded images"""
+#         images = models.EventImage.objects.all()
+#         serializer = serializer.EventImageSerializer(images, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+# class EventFeedbackAPIView(APIView):
+#     """API endpoint for submitting and retrieving event feedback"""
+
+#     from rest_framework.permissions import IsAuthenticated
+#     permission_classes = [IsAuthenticated]  # Only logged-in users can submit feedback
+
+#     def post(self, request, event_id):
+#         """Submit feedback for an event"""
+#         try:
+#             event = models.Event.objects.get(id=event_id)
+#         except models.Event.DoesNotExist:
+#             return Response({"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
+
+#         data = request.data.copy()
+#         data["event"] = event.id
+#         data["user"] = request.user.id  # Automatically associate feedback with the logged-in user
+
+#         serializer = serializer.EventFeedbackSerializer(data=data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(
+#                 {"message": "Feedback submitted successfully", "data": serializer.data},
+#                 status=status.HTTP_201_CREATED,
+#             )
+
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     def get(self, request, event_id):
+#         """Retrieve all feedback for a specific event"""
+#         feedbacks = models.EventFeedback.objects.filter(event_id=event_id)
+#         serializer = serializer.EventFeedbackSerializer(feedbacks, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+# =======
+# >>>>>>> master
