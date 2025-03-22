@@ -45,6 +45,11 @@ events_api_v1_urls = [
         views.EventRSVPAPI().as_view(),
         name="events-rsvp",
     ),
+    path(
+        "check-user-interactions/<int:event_id>/",
+        views.EventCheckUserInteractionsAPI().as_view(),
+        name="events-check-user-interactions",
+    ),
 ]
 
 # Adding media URLs inside events API (Not recommended)

@@ -525,6 +525,71 @@ class EventRSVPAPI(APIView):
         return Response({"success": "RSVP done"}, status=status.HTTP_200_OK)
 
 
+class EventCheckUserInteractionsAPI(APIView):
+    """API view to check user interactions with events
+
+    Methods:
+        GET
+    """
+
+    permission_classes = []
+
+    def get(self, request, event_id: int):
+        """GET Method to check user interactions with events
+
+        Output Serializer:
+            - has_rsvp
+            - has_commented
+            - has_shared
+
+        Possible Outputs:
+            - Errors
+                - Event not found (event_id field)
+            - Successes
+                - user interactions
+        """
+
+        event = models.Event.objects.filter(id=event_id).first()
+
+        if not event:
+            return Response(
+                {"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        has_rsvp = models.EventAttendees.objects.filter(
+            event=event,
+            user=request.user,
+        ).exists()
+
+        has_attended = models.EventAttendees.objects.filter(
+            event=event,
+            user=request.user,
+            is_present=True,
+        ).exists()
+
+        has_commented = models.EventInteractions.objects.filter(
+            event=event,
+            user=request.user,
+            interaction_type="comment",
+        ).exists()
+
+        has_shared = models.EventInteractions.objects.filter(
+            event=event,
+            user=request.user,
+            interaction_type="share",
+        ).exists()
+
+        return Response(
+            {
+                "has_rsvp": has_rsvp,
+                "has_attended": has_attended,
+                "has_commented": has_commented,
+                "has_shared": has_shared,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
 class EventRemoveRSVPAPI(APIView):
     """API view to remove RSVP for events
 
