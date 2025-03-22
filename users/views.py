@@ -298,7 +298,10 @@ class OrganisationCreateAPI(APIView):
         organisation.save()
 
         OrganisationCommittee(
-            user=request.user, organisation=organisation, designation="Owner"
+            user=request.user,
+            organisation=organisation,
+            designation="Founder",
+            is_founder=True,
         ).save()
 
         return Response(

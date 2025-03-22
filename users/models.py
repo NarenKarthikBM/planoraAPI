@@ -4,7 +4,16 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 USER_ROLE_CHOICES = [("Admin", "Admin"), ("Member", "Member")]
-categories = [('music','Music'),('nightlife','Nightlife'),('concert','Concert'),('holidays','Holidays'),('dating','Dating'),('hobbies','Hobbies'),('business','Business'),('food_drink','Food & Drink')]
+categories = [
+    ("music", "Music"),
+    ("nightlife", "Nightlife"),
+    ("concert", "Concert"),
+    ("holidays", "Holidays"),
+    ("dating", "Dating"),
+    ("hobbies", "Hobbies"),
+    ("business", "Business"),
+    ("food_drink", "Food & Drink"),
+]
 
 
 class CustomUserManager(BaseUserManager):
@@ -276,6 +285,11 @@ class OrganisationCommittee(models.Model):
         help_text="Permissions granted to the user",
         default=dict,
     )
+    is_founder = models.BooleanField(
+        _("is founder"),
+        help_text="Is Founder",
+        default=False,
+    )
     created_at = models.DateTimeField(
         _("created at"), help_text="Created At", auto_now_add=True
     )
@@ -305,19 +319,33 @@ class UserPreference(models.Model):
     )
 
     # Designation
-    designation = models.CharField(_("designation"), help_text="User Designation", max_length=255)
+    designation = models.CharField(
+        _("designation"), help_text="User Designation", max_length=255
+    )
 
     # Preferred Categories (Multiple Choices)
-    preferred_categories = models.CharField(_("preferred_category"),help_text="Category",max_length=50,choices=categories)
+    preferred_categories = models.CharField(
+        _("preferred_category"), help_text="Category", max_length=50, choices=categories
+    )
 
     # Email Notification Preferences
-    allow_marketing_emails = models.BooleanField(_("marketing emails"), help_text="Allow Marketing Emails", default=True)
-    allow_event_updates = models.BooleanField(_("event updates"), help_text="Allow Event Updates", default=True)
-    allow_system_notifications = models.BooleanField(_("system notifications"), help_text="Allow System Notifications", default=True)
+    allow_marketing_emails = models.BooleanField(
+        _("marketing emails"), help_text="Allow Marketing Emails", default=True
+    )
+    allow_event_updates = models.BooleanField(
+        _("event updates"), help_text="Allow Event Updates", default=True
+    )
+    allow_system_notifications = models.BooleanField(
+        _("system notifications"), help_text="Allow System Notifications", default=True
+    )
 
     # Timestamps
-    created_at = models.DateTimeField(_("created at"), help_text="Created At", auto_now_add=True)
-    updated_at = models.DateTimeField(_("updated at"), help_text="Updated At", auto_now=True)
+    created_at = models.DateTimeField(
+        _("created at"), help_text="Created At", auto_now_add=True
+    )
+    updated_at = models.DateTimeField(
+        _("updated at"), help_text="Updated At", auto_now=True
+    )
 
     class Meta:
         verbose_name = _("User Preference")
