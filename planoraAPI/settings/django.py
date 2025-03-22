@@ -50,10 +50,14 @@ AUTH_USER_MODEL = "users.CustomUser"
 
 ROOT_URLCONF = "planoraAPI.urls"
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            os.path.join(BASE_DIR, "templates"),
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -140,5 +144,3 @@ if all([ADMIN_USER_NAME, ADMIN_USER_EMAIL]):
     MANAGERS = ADMINS
 
 ADMIN_USER_EMAIL = "nirman22@iiserb.ac.in"
-
-TEMPLATE_DIRS = (os.path.join(SETTINGS_PATH, "templates"),)
