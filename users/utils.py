@@ -37,14 +37,20 @@ def authorize_user(data):
 
     tokens = generate_tokens()
 
-    UserAuthTokens.objects.filter(user=user).delete()
+    existing_tokens = UserAuthTokens.objects.filter(user=user).first()
 
-    UserAuthTokens(
-        user=user,
-        auth_token=tokens["auth_token"],
-        device_token=tokens["device_token"],
-        type="web",
-    ).save()
+    if not existing_tokens:
+        UserAuthTokens(
+            user=user,
+            auth_token=tokens["auth_token"],
+            device_token=tokens["device_token"],
+            type="web",
+        ).save()
+    else:
+        tokens = {
+            "auth_token": existing_tokens.auth_token,
+            "device_token": existing_tokens.device_token,
+        }
 
     return {
         "tokens": tokens,
