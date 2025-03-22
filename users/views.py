@@ -152,7 +152,7 @@ class UserSendVerificationOTPAPI(APIView):
         """
 
         otp = create_verification_otp(request.user.email)
-        send_verification_email(request.user.email, otp)
+        send_verification_email(request.user, otp)
         # send_registration_otp_mail(request.user.email, otp)
 
         return Response(
