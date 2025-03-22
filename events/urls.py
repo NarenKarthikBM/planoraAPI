@@ -13,4 +13,9 @@ events_api_v1_urls = [
         views.EventsFeedAPI().as_view(),
         name="events-personalised-feed",
     ),
+    path(
+        "organisation-event-list/<int:organisation_id>/",
+        views.EventListByOrganisation().as_view(),
+        name="events-list-by-organisation",
+    ),
 ]
