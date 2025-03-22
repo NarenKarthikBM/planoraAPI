@@ -1,5 +1,6 @@
 from django.urls import path
-
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 
 events_api_v1_urls = [
@@ -14,3 +15,7 @@ events_api_v1_urls = [
         name="events-personalised-feed",
     ),
 ]
+
+# Adding media URLs inside events API (Not recommended)
+if settings.DEBUG:
+    events_api_v1_urls += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

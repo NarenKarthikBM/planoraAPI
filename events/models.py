@@ -235,3 +235,44 @@ class EventFeedback(models.Model):
 
     def __str__(self):
         return f"{self.event.name} - {self.user.name}"
+
+
+class EventImage(models.Model):
+    """This model stores the details of event images
+
+    Returns:
+        class: details of event images
+    """
+
+    event = models.ForeignKey(
+        "events.Event",
+        on_delete=models.CASCADE,
+        verbose_name="event",
+        help_text="Event",
+        related_name="images",
+    )
+    user = models.ForeignKey(
+        "users.CustomUser",
+        on_delete=models.CASCADE,
+        verbose_name="user",
+        help_text="User",
+        related_name="uploaded_images",
+    )
+    title = models.CharField(max_length=255, verbose_name="title", help_text="Title")
+    image = models.ImageField(upload_to="event_images/", verbose_name="image", help_text="Image")
+    uploaded_at = models.DateTimeField(
+        _("uploaded at"), help_text="Uploaded At", auto_now_add=True
+    )
+    created_at = models.DateTimeField(
+        _("created at"), help_text="Created At", auto_now_add=True
+    )
+    updated_at = models.DateTimeField(
+        _("updated at"), help_text="Updated At", auto_now=True
+    )
+
+    class Meta:
+        verbose_name = _("Event Image")
+        verbose_name_plural = _("Event Images")
+
+    def __str__(self):
+        return f"{self.event.name} - {self.user.name}"

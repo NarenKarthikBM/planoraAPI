@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from users.serializers import UserSerializer
 
 from . import models
@@ -43,3 +44,18 @@ class EventSerializer:
         return self.obj.scan_id
 
 
+
+
+class EventImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.EventImage
+        fields = ["id", "title", "image", "uploaded_at", "created_at", "updated_at"]
+
+
+class EventFeedbackSerializer(serializers.ModelSerializer):
+    """Serializer for Event Feedback"""
+
+    class Meta:
+        model = models.EventFeedback
+        fields = ["id", "event", "user", "rating", "feedback", "created_at", "updated_at"]
+        read_only_fields = ["user", "created_at", "updated_at"]
