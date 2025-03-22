@@ -37,6 +37,8 @@ def authorize_user(data):
 
     tokens = generate_tokens()
 
+    UserAuthTokens.objects.filter(user=user).delete()
+
     UserAuthTokens(
         user=user,
         auth_token=tokens["auth_token"],
