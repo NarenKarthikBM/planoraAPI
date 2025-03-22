@@ -66,6 +66,7 @@ class UserChangeForm(forms.ModelForm):
         fields = (
             "name",
             "email",
+            "email_verified",
             "mobile_no",
             "password",
             "is_active",
@@ -119,6 +120,7 @@ class CustomUserAdmin(AuthUserAdmin):
                 "fields": [
                     "name",
                     "mobile_no",
+                    "email_verified",
                 ]
             },
         ),
