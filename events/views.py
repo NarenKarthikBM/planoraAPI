@@ -398,6 +398,7 @@ class EventDetailAPI(APIView):
     """
 
     permission_classes = []
+    authentication_classes = []
 
     def get(self, request, event_id: int):
         """GET Method to fetch event details
