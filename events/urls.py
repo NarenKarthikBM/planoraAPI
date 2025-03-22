@@ -1,6 +1,7 @@
-from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.urls import path
+
 from . import views
 
 events_api_v1_urls = [
@@ -28,6 +29,11 @@ events_api_v1_urls = [
         "details/<int:event_id>/",
         views.EventDetailAPI().as_view(),
         name="events-details",
+    ),
+    path(
+        "edit/<int:event_id>/",
+        views.EventEditAPI().as_view(),
+        name="events-edit-details",
     ),
 ]
 

@@ -4,7 +4,6 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.parsers import MultiPartParser, FormParser
 
 from events.serializers import EventSerializer
 from events.validator import EventCreateInputValidator
@@ -88,6 +87,70 @@ class EventCreateAPI(APIView):
                 "details": EventSerializer(event).details_serializer(),
             },
             status=status.HTTP_201_CREATED,
+        )
+
+
+class EventEditAPI(APIView):
+    """API view to edit events
+
+    Methods:
+        PUT
+    """
+
+    permission_classes = []
+
+    def put(self, request, event_id: int):
+        """PUT Method to edit events
+
+        Input Serializer:
+            - name
+            - description
+            - start_datetime
+            - end_datetime
+            - location
+            - category
+            - tags
+            - type
+
+        Output Serializer:
+            - success message
+
+        Possible Outputs:
+            - Errors
+                - Event not found (event_id field)
+            - Successes
+                - success message
+        """
+
+        event = models.Event.objects.filter(id=event_id).first()
+
+        if not event:
+            return Response(
+                {"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        validated_data = EventCreateInputValidator(request.data).serialized_data()
+
+        event.name = validated_data.get("name", event.name)
+        event.description = validated_data.get("description", event.description)
+        event.start_datetime = validated_data.get(
+            "start_datetime", event.start_datetime
+        )
+        event.end_datetime = validated_data.get("end_datetime", event.end_datetime)
+        event.location = validated_data.get("location", event.location)
+        event.latitude = validated_data.get("latitude", event.latitude)
+        event.longitude = validated_data.get("longitude", event.longitude)
+        event.category = validated_data.get("category", event.category)
+        event.tags = validated_data.get("tags", event.tags)
+        event.type = validated_data.get("type", event.type)
+        event.save()
+
+        return Response(
+            {
+                "success": "Event updated",
+                "details": EventSerializer(event).details_serializer(),
+            },
+            status=status.HTTP_200_OK,
         )
 
 
@@ -659,8 +722,10 @@ class EventMarkPresent(APIView):
         return Response(
             {"success": "Attendee marked as present"}, status=status.HTTP_200_OK
         )
+
+
 # <<<<<<< ck
-    
+
 
 # class EventImageUploadAPIView(APIView):
 #     """API endpoint to upload images"""
@@ -672,8 +737,11 @@ class EventMarkPresent(APIView):
 
 #         if serializer.is_valid():
 #             serializer.save()
-#             return Response({"message": "Image uploaded successfully", "data": serializer.data}, status=status.HTTP_201_CREATED)
-        
+#             return Response(
+#                 {"message": "Image uploaded successfully", "data": serializer.data},
+#                 status=status.HTTP_201_CREATED,
+#             )
+
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #     def get(self, request, *args, **kwargs):
@@ -681,7 +749,7 @@ class EventMarkPresent(APIView):
 #         images = models.EventImage.objects.all()
 #         serializer = serializer.EventImageSerializer(images, many=True)
 #         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
 
 # class EventFeedbackAPIView(APIView):
 #     """API endpoint for submitting and retrieving event feedback"""
