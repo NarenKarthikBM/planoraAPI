@@ -558,20 +558,20 @@ class EventCheckUserInteractionsAPI(APIView):
 
         has_rsvp = models.EventAttendees.objects.filter(
             event=event,
-            user=request.user,
+            attendee=request.user,
         ).exists()
 
         has_attended = models.EventAttendees.objects.filter(
             event=event,
-            user=request.user,
+            attendee=request.user,
             is_present=True,
         ).exists()
 
-        has_commented = models.EventInteractions.objects.filter(
-            event=event,
-            user=request.user,
-            interaction_type="comment",
-        ).exists()
+        # has_commented = models.EventInteractions.objects.filter(
+        #     event=event,
+        #     user=request.user,
+        #     interaction_type="comment",
+        # ).exists()
 
         has_shared = models.EventInteractions.objects.filter(
             event=event,
@@ -583,7 +583,7 @@ class EventCheckUserInteractionsAPI(APIView):
             {
                 "has_rsvp": has_rsvp,
                 "has_attended": has_attended,
-                "has_commented": has_commented,
+                # "has_commented": has_commented,
                 "has_shared": has_shared,
             },
             status=status.HTTP_200_OK,
