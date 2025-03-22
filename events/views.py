@@ -677,6 +677,45 @@ class EventListByOrganisation(APIView):
         )
 
 
+class EventsListByUserAPI(APIView):
+    """API view to listing events under an organisation
+
+    Methods:
+        GET
+    """
+
+    permission_classes = []
+
+    def get(self, request):
+        """GET Method to fetch events feed
+
+        Output Serializer:
+            - EventSerializer
+
+        Possible Outputs:
+            - Errors
+                - Permission Denied (if user not part of org)
+            - Successes
+                - events feed of organisation
+        """
+
+        events = models.Event.objects.filter(
+            start_datetime__gte=timezone.now(), created_by=request.user
+        ).order_by("start_datetime")
+
+        return Response(
+            {
+                "events": [
+                    {
+                        "details": EventSerializer(event).details_serializer(),
+                    }
+                    for event in events
+                ]
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
 # ! CSV Import for creation and updation
 
 

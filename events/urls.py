@@ -50,6 +50,11 @@ events_api_v1_urls = [
         views.EventCheckUserInteractionsAPI().as_view(),
         name="events-check-user-interactions",
     ),
+    path(
+        "event-list-by-user/",
+        views.EventsListByUserAPI().as_view(),
+        name="event-list-by-user",
+    ),
 ]
 
 # Adding media URLs inside events API (Not recommended)
