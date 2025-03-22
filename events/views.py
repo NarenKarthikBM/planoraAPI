@@ -708,6 +708,12 @@ class EventsListByUserAPI(APIView):
                 "events": [
                     {
                         "details": EventSerializer(event).details_serializer(),
+                        "total_rsvped": models.EventAttendees.objects.filter(
+                            event=event
+                        ).count(),
+                        "total_attended": models.EventAttendees.objects.filter(
+                            event=event, is_present=True
+                        ).count(),
                     }
                     for event in events
                 ]
