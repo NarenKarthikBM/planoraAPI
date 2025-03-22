@@ -25,7 +25,7 @@ events_api_v1_urls = [
     ),
     path(
         "details/<int:event_id>/",
-        views.EventCreateAPI().as_view(),
+        views.EventDetailAPI().as_view(),
         name="events-details",
     ),
 ]
