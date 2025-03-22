@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.validators import ValidationError
 from rest_framework.views import APIView
 
+from users.emails import send_verification_email
 from users.models import (
     CustomUser,
     Organisation,
@@ -22,7 +23,6 @@ from users.validator import (
     UserPreferenceInputValidator,
     UserRegistrationInputValidator,
 )
-from utils.emails import send_verification_email
 
 
 class UserObtainAuthTokenAPI(APIView):
