@@ -393,6 +393,7 @@ class OrganisationCommitteeMemberListAPI(APIView):
                             member.user
                         ).condensed_details_serializer(),
                         "designation": member.designation,
+                        "is_founder": member.is_founder,
                     }
                     for member in committee_members
                 ]
